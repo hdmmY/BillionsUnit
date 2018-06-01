@@ -38,7 +38,7 @@ public class BillionUnitBootstrap
 
         // Debug -- test spawn tile
         Entity tile = entityManager.CreateEntity (Tile01Archetype);
-        entityManager.SetComponentData (tile, new Position2D { CarValue = new float2 (1, 1) });
+        entityManager.SetComponentData (tile, new Position2D { CarX = 1, CarY = 1 });
         entityManager.AddSharedComponentData (tile, Tile01Look);
 
 
@@ -48,7 +48,8 @@ public class BillionUnitBootstrap
         {
             entityManager.SetComponentData (entity, new Position2D
             {
-                CarValue = new float2 (Random.Range (-10, 10), Random.Range (-10, 10))
+                CarX = Random.Range (-10, 10),
+                CarY = Random.Range (-10, 10)
             });
         }
         billionTiles.Dispose ();
