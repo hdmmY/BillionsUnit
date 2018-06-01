@@ -26,7 +26,7 @@
 			#pragma fragment frag
             #pragma target 4.5
             #pragma multi_compile_instancing
-            #pragma instancing_options procedural:setup
+            #pragma instancing_options assumeuniformscaling nolodfade nolightprobe nolightmap
 
 			#include "UnityCG.cginc"
 
@@ -46,44 +46,36 @@
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
 
-            #ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
+            #if SHADER_TARGET >= 45
                 StructuredBuffer<float2> positionBuffer;
-                StructuredBuffer<float> rotationBuffer;
+                float rotation;
             #endif
 
-            void setup()
+            void rotate2D(inout float2 v, float r)
             {
-        
-            #ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
-                float2 position = positionBuffer[unity_InstanceID];
-                float rotation = UNITY_PI * rotationBuffer[unity_InstanceID];
-
-                float cosr = cos(rotation);
-                float sinr = sin(rotation);
-
-                unity_ObjectToWorld = float4x4(
-                    cosr, 0, sinr, position.x,
-                       0, 1,    0,          0,
-                   -sinr, 0, cosr, position.y,
-                       0, 0,    0,          1
-                );
-
-                // unity_WorldToObject = float4x4(
-                //     cosr, 0, -sinr, -position.x,
-                //        0, 1,     0, -position.y,
-                //     sinr, 0,  cosr,           0,
-                //        0, 0,     0,           1
-                // );
-            #endif
+                float s, c;
+                sincos(r, s, c);
+                v = float2(v.x * c - v.y * s, v.x * s + v.y * c);
             }
-
 			
-			v2f vert (appdata v)
+			v2f vert (appdata v, uint instanceID : SV_InstanceID)
 			{
-                UNITY_SETUP_INSTANCE_ID(v);
+            #if SHADER_TARGET >= 45
+                float2 posData = positionBuffer[instanceID];
+                float3 worldPos = float3(posData.x, 0, posData.y);
+                float rot = rotation;
+            #else
+                float3 worldPos = 0;
+                float rot = 0;
+            #endif
 
 				v2f o;
-				o.vertex = UnityObjectToClipPos(v.vertex);
+                
+                v.vertex.xz -= 0.5;
+                rotate2D(v.vertex.xz, rot);
+				v.vertex.xz += 0.5;
+
+                o.vertex = mul(UNITY_MATRIX_VP, float4(worldPos + v.vertex.xyz, 1.0f));
 				o.uv = TRANSFORM_TEX(v.uv, _MainTex);
 				return o;
 			}

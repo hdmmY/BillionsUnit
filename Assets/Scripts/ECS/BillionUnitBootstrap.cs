@@ -37,20 +37,19 @@ public class BillionUnitBootstrap
         Tile01Look = GetLookFromPrototype ("Terrain01 Prototype");
 
         // Debug -- test spawn tile
-        Entity tile = entityManager.CreateEntity (Tile01Archetype);
-        entityManager.SetComponentData (tile, new Position2D { CarX = 1, CarY = 1 });
-        entityManager.AddSharedComponentData (tile, Tile01Look);
+        Entity tileTemple = entityManager.CreateEntity (Tile01Archetype);
+        entityManager.SetComponentData (tileTemple, new Position2D { CarX = 1, CarY = 1 });
+        entityManager.AddSharedComponentData (tileTemple, Tile01Look);
 
 
-        NativeArray<Entity> billionTiles = new NativeArray<Entity> (5000, Allocator.Temp);
-        entityManager.Instantiate (tile, billionTiles);
-        foreach (var entity in billionTiles.ToArray ())
+        NativeArray<Entity> billionTiles = new NativeArray<Entity> (10000, Allocator.Temp);
+        entityManager.Instantiate (tileTemple, billionTiles);
+        for (int y = 0; y < 100; y++)
         {
-            entityManager.SetComponentData (entity, new Position2D
+            for (int x = 0; x < 100; x++)
             {
-                CarX = Random.Range (-10, 10),
-                CarY = Random.Range (-10, 10)
-            });
+                entityManager.SetComponentData (billionTiles[y * 100 + x], new Position2D (x, y));
+            }
         }
         billionTiles.Dispose ();
     }
