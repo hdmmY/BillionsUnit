@@ -27,8 +27,9 @@
             #pragma target 4.5
             #pragma multi_compile_instancing
             #pragma instancing_options assumeuniformscaling nolodfade nolightprobe nolightmap
-
 			#include "UnityCG.cginc"
+
+            #define UNITY_DEG2RAD  0.01745329252f
 
 			struct appdata
 			{
@@ -48,7 +49,8 @@
 
             #if SHADER_TARGET >= 45
                 StructuredBuffer<float2> positionBuffer;
-                float rotation;
+                StructuredBuffer<float>  rotationBuffer;
+                StructuredBuffer<float2> scaleBuffer;
             #endif
 
             void rotate2D(inout float2 v, float r)
@@ -63,17 +65,19 @@
             #if SHADER_TARGET >= 45
                 float2 posData = positionBuffer[instanceID];
                 float3 worldPos = float3(posData.x, 0, posData.y);
-                float rot = rotation;
+                float2 size = scaleBuffer[instanceID];
+                float rot = rotationBuffer[instanceID] * UNITY_DEG2RAD;
             #else
                 float3 worldPos = 0;
                 float rot = 0;
+                float2 size = float2(1, 1);
             #endif
 
 				v2f o;
                 
-                v.vertex.xz -= 0.5;
+                v.vertex.xz -= size / 2;
                 rotate2D(v.vertex.xz, rot);
-				v.vertex.xz += 0.5;
+				v.vertex.xz += size / 2;
 
                 o.vertex = mul(UNITY_MATRIX_VP, float4(worldPos + v.vertex.xyz, 1.0f));
 				o.uv = TRANSFORM_TEX(v.uv, _MainTex);

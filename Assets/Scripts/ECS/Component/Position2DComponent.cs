@@ -2,7 +2,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-// Isometric coordinate and Cartesian coordinate
+[Serializable]
 public struct Position2D : IComponentData
 {
     public float CarX;

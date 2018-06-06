@@ -33,6 +33,14 @@ internal sealed class ComputeBufferPool : IDisposable
                 Pool.Return (usedBuffers.Dequeue ());
             }
         }
+
+        public void Dispose ()
+        {
+            while (usedBuffers.Count > 0)
+            {
+                usedBuffers.Dequeue ().Dispose ();
+            }
+        }
     }
 
     struct ComputeBufferParams : IEquatable<ComputeBufferParams>

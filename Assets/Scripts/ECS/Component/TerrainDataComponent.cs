@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 
-[System.Serializable]
+[Serializable]
 public struct TerrainData : ISharedComponentData
 {
     public Mesh Mesh;
@@ -10,8 +11,6 @@ public struct TerrainData : ISharedComponentData
     public Material Material;
     
     public float2 Size;  // Terrain tile size
-        
-    public float Angle;  // Tile rotation, clockwise
 }
 
 public class TerrainDataComponent : SharedComponentDataWrapper<TerrainData> { }
