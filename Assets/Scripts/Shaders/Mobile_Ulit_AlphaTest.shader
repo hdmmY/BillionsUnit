@@ -1,4 +1,4 @@
-﻿Shader "BillionsUnit/Mobile_Ulit"
+﻿Shader "BillionsUnit/Mobile_Ulit_AlphaTest"
 {
 	Properties
 	{
@@ -9,15 +9,16 @@
 	{
 		Tags 
         {
-            "Queue"="Transparent" 
+            "Queue"="AlphaTest" 
             "IgnoreProjector"="True" 
             "PreviewType"="Plane"
-            "RenderType"="Transparent"
+            "RenderType"="TransparentCutout"
         }
 
-        ZWrite Off
-        Lighting Off
-        Blend SrcAlpha OneMinusSrcAlpha
+        // Cull Off
+        // ZWrite Off
+        // Lighting Off
+        // Blend One OneMinusSrcAlpha
 
 		Pass
 		{
@@ -56,8 +57,9 @@
 			
 			fixed4 frag (v2f i) : SV_Target
 			{
-				fixed4 col = tex2D(_MainTex, i.uv);
-				return col;
+				fixed4 c = tex2D(_MainTex, i.uv);
+				clip(c.a - 0.8);
+                return c;
 			}
 			ENDCG
 		}

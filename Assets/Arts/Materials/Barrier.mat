@@ -6,7 +6,7 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: Terrain 01
+  m_Name: Barrier
   m_Shader: {fileID: 4800000, guid: 7e638fc57f9fc844092071408f6ba4ff, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
@@ -39,7 +39,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: f60abf60241a7d14eb79f08a54f54707, type: 3}
+        m_Texture: {fileID: 2800000, guid: 400387e70fb171b42abeac0049c85b1d, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
