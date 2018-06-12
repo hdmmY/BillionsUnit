@@ -5,9 +5,7 @@ using UnityEngine;
 [RequireComponent (typeof (Camera))]
 public class SimpleCameraController : MonoBehaviour
 {
-    public float XSpeed;
-
-    public float ZSpeed;
+    public float MoveSpeed;
 
     public float ScaleSpeed;
 
@@ -20,8 +18,9 @@ public class SimpleCameraController : MonoBehaviour
 
     private void Update ()
     {
-        transform.position += new Vector3 (Input.GetAxis ("Horizontal") * XSpeed, 0,
-            Input.GetAxis ("Vertical") * ZSpeed) * Time.deltaTime;
+        transform.position += new Vector3 (
+            Input.GetAxis ("Horizontal"), 0,
+            Input.GetAxis ("Vertical")) * Time.deltaTime * MoveSpeed;
 
         _camera.orthographicSize = Mathf.Clamp (_camera.orthographicSize +
             -1 * Input.GetAxis ("Mouse ScrollWheel") * ScaleSpeed, 0.1f, 40f);

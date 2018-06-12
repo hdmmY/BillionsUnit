@@ -30,16 +30,17 @@ public class BillionUnitBootstrap
     {
         var entityManager = World.Active.GetOrCreateManager<EntityManager> ();
 
-        InitializeRenderData (entityManager);
+        InitializeEntityPrefab (entityManager);
         InitializeTerrain (entityManager);
         InitializeColliderInfomation (entityManager);
     }
 
-    private static void InitializeRenderData (EntityManager entityManager)
+    private static void InitializeEntityPrefab (EntityManager entityManager)
     {
-        RenderDataInfo.Terrain01 = SetUpRenderData ("Terrain01 Prototype", entityManager);
-        RenderDataInfo.UI_Terrain01 = SetUpRenderData ("UI Terrain01 Prototype", entityManager);
-        RenderDataInfo.Barrier = SetUpRenderData ("Barrier Prototype", entityManager);
+        EntityPrefabContainer.Terrain01 = SetUpRenderData ("Terrain01 Prototype", entityManager);
+        EntityPrefabContainer.UI_Terrain01 = SetUpRenderData ("UI Terrain01 Prototype", entityManager);
+        EntityPrefabContainer.Barrier = SetUpRenderData ("Barrier Prototype", entityManager);
+        EntityPrefabContainer.Enemy01 = SetUpAnimData ("Enemy01 Prototype", entityManager);
     }
 
     private static void InitializeTerrain (EntityManager entityManager)
@@ -53,9 +54,9 @@ public class BillionUnitBootstrap
         float gridCullRadius = 1.5f * math.sqrt (gridWidth * gridWidth + gridHeight * gridHeight);
 
         // Initialize ui terrain
-        var baseUIDrawOffset = entityManager.GetComponentData<UnitPosition> (RenderDataInfo.UI_Terrain01).Offset;
+        var baseUIDrawOffset = entityManager.GetComponentData<UnitPosition> (EntityPrefabContainer.UI_Terrain01).Offset;
         var baseUITiles = new NativeArray<Entity> (mapWidth * mapHeight, Allocator.Temp);
-        entityManager.Instantiate (RenderDataInfo.UI_Terrain01, baseUITiles);
+        entityManager.Instantiate (EntityPrefabContainer.UI_Terrain01, baseUITiles);
         for (int y = 0; y < mapHeight; y++)
         {
             for (int x = 0; x < mapWidth; x++)
@@ -71,9 +72,9 @@ public class BillionUnitBootstrap
         baseUITiles.Dispose ();
 
         // Initialize base terrain
-        var baseTerrainDrawOffset = entityManager.GetComponentData<UnitPosition> (RenderDataInfo.Terrain01).Offset;
+        var baseTerrainDrawOffset = entityManager.GetComponentData<UnitPosition> (EntityPrefabContainer.Terrain01).Offset;
         var baseTerrs = new NativeArray<Entity> (mapWidth * mapHeight, Allocator.Temp);
-        entityManager.Instantiate (RenderDataInfo.Terrain01, baseTerrs);
+        entityManager.Instantiate (EntityPrefabContainer.Terrain01, baseTerrs);
         for (int y = 0; y < mapHeight; y++)
         {
             for (int x = 0; x < mapWidth; x++)
@@ -119,6 +120,38 @@ public class BillionUnitBootstrap
         UnityEngine.Object.Destroy (renderer);
 
         return renderEntity;
+    }
+
+    private static GameObject SetUpAnimData (string name, EntityManager entityManager)
+    {
+        var originSprite = GameObject.Find (name);
+
+        var newSprite = new GameObject (name);
+        newSprite.AddComponent<SpriteRenderer> ();
+        newSprite.AddComponent<SimpleSpriteAnimCollectionComponent> ().AnimationData =
+            originSprite.GetComponent<SimpleSpriteAnimCollectionComponent> ().AnimationData;
+        newSprite.AddComponent<GameObjectEntity> ();
+
+        var spriteEntity = newSprite.GetComponent<GameObjectEntity> ().Entity;
+
+        var positionComponent = originSprite.GetComponent<UnitPositionComponent> ();
+        entityManager.AddComponentData<UnitPosition> (spriteEntity, positionComponent.Value);
+
+        var headingComponent = originSprite.GetComponent<Heading2DComponent> ();
+        entityManager.AddComponentData<Heading2D> (spriteEntity, headingComponent.Value);
+
+        var rotationComponent = originSprite.GetComponent<UnitRotationComponent> ();
+        entityManager.AddComponentData<UnitRotation> (spriteEntity, rotationComponent.Value);
+
+        var simpleAnimInfoComponent = originSprite.GetComponent<SimpleAnimInfomationComponent> ();
+        entityManager.AddSharedComponentData<SimpleAnimInfomation> (spriteEntity, simpleAnimInfoComponent.Value);
+
+        var selfSimpleAnimDataComponent = originSprite.GetComponent<SelfSimpleSpriteAnimDataComponent> ();
+        entityManager.AddComponentData<SelfSimpleSpriteAnimData> (spriteEntity, selfSimpleAnimDataComponent.Value);
+
+        Object.Destroy (originSprite);
+
+        return newSprite;
     }
 
     #endregion

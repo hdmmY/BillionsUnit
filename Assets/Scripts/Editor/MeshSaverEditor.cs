@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-public static class MeshSaverEditor
+internal static class MeshSaverEditor
 {
     [MenuItem ("CONTEXT/MeshFilter/Save Mesh As New Instance...")]
-    public static void SaveMeshNewInstanceItem (MenuCommand menuCommand)
+    private static void SaveMeshNewInstanceItem (MenuCommand menuCommand)
     {
         MeshFilter mf = menuCommand.context as MeshFilter;
         Mesh m = mf.sharedMesh;
