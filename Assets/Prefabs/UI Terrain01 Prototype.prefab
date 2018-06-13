@@ -19,13 +19,14 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4591927698681688}
+  - component: {fileID: 33351414569257046}
+  - component: {fileID: 23610253145929366}
   - component: {fileID: 114559680664286246}
   - component: {fileID: 114060619457536048}
   - component: {fileID: 114738129989295578}
   - component: {fileID: 114035210566338084}
   - component: {fileID: 114203662816386254}
-  - component: {fileID: 33351414569257046}
-  - component: {fileID: 23610253145929366}
+  - component: {fileID: 114231336196118470}
   m_Layer: 0
   m_Name: UI Terrain01 Prototype
   m_TagString: Untagged
@@ -135,6 +136,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_SerializedData:
     TerrainType: 0
+--- !u!114 &114231336196118470
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1650672933314598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e72617dfe74b5244da7b2eaa9e6b4460, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SerializedData:
+    BoundingSphereCenter:
+      x: 0.5
+      y: 0
+      z: 0.5
+    BoundingSphereRadius: 1
+    CullStatus: 0
 --- !u!114 &114559680664286246
 MonoBehaviour:
   m_ObjectHideFlags: 1

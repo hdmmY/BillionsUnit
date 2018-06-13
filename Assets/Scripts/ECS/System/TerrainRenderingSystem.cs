@@ -12,7 +12,6 @@ using Unity.Mathematics;
 
 
 [ExecuteInEditMode]
-[UpdateBefore (typeof (MeshFrustumCullingSystem))]
 public class TerrainRenderingSystem : ComponentSystem
 {
 
@@ -24,7 +23,7 @@ public class TerrainRenderingSystem : ComponentSystem
     {
         _terrainRenderGroup = GetComponentGroup (
             typeof (TerrainRenderer), typeof (TransformMatrix), typeof (Terrain),
-            ComponentType.Subtractive (typeof (MeshCulledComponent)));
+            ComponentType.Subtractive (typeof (TerrainCulled)));
     }
 
     protected override void OnUpdate ()

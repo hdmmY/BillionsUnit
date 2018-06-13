@@ -27,12 +27,6 @@ public class SyncTransformSystem : ComponentSystem
             float2 heading = _initTransDatas.Headings[i].Value;
 
             _initTransDatas.Outputs[i].position = new float3 (position.x, 0, position.y);
-
-            if (heading.x != 0 && heading.y != 0)
-            {
-                _initTransDatas.Outputs[i].rotation = Quaternion.LookRotation (
-                    new float3 (heading.x, 0, heading.y), new float3 (0, 1, 0));
-            }
         }
     }
 }

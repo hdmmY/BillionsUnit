@@ -10,5 +10,5 @@ public static class EntityPrefabContainer
 
     public static Entity Barrier;
 
-    public static GameObjectEntity Enemy01;
+    public static GameObject Enemy01;
 }

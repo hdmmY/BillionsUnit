@@ -19,13 +19,14 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4067992972335488}
+  - component: {fileID: 33103603325021766}
+  - component: {fileID: 23663939737446280}
   - component: {fileID: 114858005407745222}
   - component: {fileID: 114778942434051046}
   - component: {fileID: 114150632836750212}
   - component: {fileID: 114347380005322714}
   - component: {fileID: 114449401966930962}
-  - component: {fileID: 23663939737446280}
-  - component: {fileID: 33103603325021766}
+  - component: {fileID: 114852708750061920}
   m_Layer: 0
   m_Name: Barrier Prototype
   m_TagString: Untagged
@@ -153,6 +154,24 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 1
     Camera: {fileID: 0}
+--- !u!114 &114852708750061920
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1339339518208766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e72617dfe74b5244da7b2eaa9e6b4460, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SerializedData:
+    BoundingSphereCenter:
+      x: 0.5
+      y: 1
+      z: 0.5
+    BoundingSphereRadius: 2
+    CullStatus: 0
 --- !u!114 &114858005407745222
 MonoBehaviour:
   m_ObjectHideFlags: 1
