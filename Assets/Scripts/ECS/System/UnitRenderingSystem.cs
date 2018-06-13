@@ -30,7 +30,7 @@ public class UnitRenderingSystem : ComponentSystem
             int curClipIdx = curAnimInfo.CurrentClipIdx;
             int curFrameIdx = curAnimInfo.CurrentFrameIdx;
 
-            Debug.Log (curClipIdx + "   " + curFrameIdx);
+            // Debug.Log (curClipIdx + "   " + curFrameIdx);
 
             if (curClipIdx < 0)
             {

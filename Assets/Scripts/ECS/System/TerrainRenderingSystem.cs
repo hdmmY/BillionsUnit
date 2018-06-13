@@ -6,11 +6,13 @@ using UnityEngine.Rendering;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Collections;
+using Unity.Rendering;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 
 
 [ExecuteInEditMode]
+[UpdateBefore (typeof (MeshFrustumCullingSystem))]
 public class TerrainRenderingSystem : ComponentSystem
 {
 
@@ -21,7 +23,8 @@ public class TerrainRenderingSystem : ComponentSystem
     protected override void OnCreateManager (int capacity)
     {
         _terrainRenderGroup = GetComponentGroup (
-            typeof (TerrainRenderer), typeof (TransformMatrix), typeof (Terrain));
+            typeof (TerrainRenderer), typeof (TransformMatrix), typeof (Terrain),
+            ComponentType.Subtractive (typeof (MeshCulledComponent)));
     }
 
     protected override void OnUpdate ()

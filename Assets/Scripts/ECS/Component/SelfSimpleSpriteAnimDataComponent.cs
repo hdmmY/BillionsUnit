@@ -9,8 +9,6 @@ public struct SelfSimpleSpriteAnimData : IComponentData
     public int CurrentFrameIdx;
 
     public float CurrentFrameDuration;
-
-    public int MaxFrame;
 }
 
 public class SelfSimpleSpriteAnimDataComponent : ComponentDataWrapper<SelfSimpleSpriteAnimData> { }

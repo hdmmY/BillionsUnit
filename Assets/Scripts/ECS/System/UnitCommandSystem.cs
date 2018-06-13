@@ -8,6 +8,14 @@ public class UnitCommandSystem : ComponentSystem
 {
     private Camera _camera;
 
+    private ComponentGroup _animSprtes;
+
+    protected override void OnCreateManager (int capacity)
+    {
+        _animSprtes = GetComponentGroup (typeof (SpriteRenderer), typeof (UnitRotation),
+            typeof (SelfSimpleSpriteAnimData));
+    }
+
     protected override void OnUpdate ()
     {
         int mapWidth = GameSettingSingleton.MAP_WIDTH;
@@ -53,22 +61,14 @@ public class UnitCommandSystem : ComponentSystem
         }
 
 
-        // Enemy animation
-        // if (Input.GetMouseButton (1))
-        if (true)
+        // Rotate sprite
+        var animSpriteRotations = _animSprtes.GetComponentDataArray<UnitRotation> ();
+        for (int i = 0; i < animSpriteRotations.Length; i++)
         {
-            var entityManager = World.Active.GetExistingManager<EntityManager> ();
-            var enemyEntity = EntityPrefabContainer.Enemy01.GetComponent<GameObjectEntity> ().Entity;
-            var enemyOriRot = entityManager.GetComponentData<UnitRotation> (enemyEntity).Angle;
-            Debug.Log (enemyOriRot);
-
-            entityManager.SetComponentData (enemyEntity, new UnitRotation
+            animSpriteRotations[i] = new UnitRotation
             {
-                Angle = Time.time * 10
-            });
-
-            return;
+                Angle = animSpriteRotations[i].Angle + Time.deltaTime * 5
+            };
         }
-
     }
 }

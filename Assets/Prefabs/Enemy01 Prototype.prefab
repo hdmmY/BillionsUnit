@@ -145,7 +145,7 @@ MonoBehaviour:
   m_SerializedData:
     AnimNumber: 10
     FramePerClip: 17
-    FrameDuration: 0.1
+    FrameDuration: 0.06
     StartAngle: 135
     DeltAngle: -18
 --- !u!212 &212466574147608726

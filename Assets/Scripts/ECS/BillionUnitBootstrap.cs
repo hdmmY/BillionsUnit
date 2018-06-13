@@ -88,6 +88,43 @@ public class BillionUnitBootstrap
             }
         }
         baseTerrs.Dispose ();
+
+        // Instanlize zombies
+        var baseEnemyTemple = EntityPrefabContainer.Enemy01.Entity;
+        var baseEnemyDrawOffset = entityManager.GetComponentData<UnitPosition> (baseEnemyTemple).Offset;
+        var baseEnemyHeading2D = entityManager.GetComponentData<Heading2D> (baseEnemyTemple);
+        var baseEnemyAnimInfo = entityManager.GetSharedComponentData<SimpleAnimInfomation> (baseEnemyTemple);
+        var baseEnemySelfAnimData = entityManager.GetComponentData<SelfSimpleSpriteAnimData> (baseEnemyTemple);
+        var baseEnemies = new NativeArray<Entity> ((mapWidth / 3) * (mapHeight / 3), Allocator.Temp);
+        for (int y = 0; y < mapHeight / 3; y++)
+        {
+            for (int x = 0; x < mapWidth / 3; x++)
+            {
+                int idx = y * (mapWidth / 3) + x;
+                baseEnemies[idx] = Object.Instantiate (EntityPrefabContainer.Enemy01.gameObject)
+                    .GetComponent<GameObjectEntity> ().Entity;
+            }
+        }
+        for (int y = 0; y < mapHeight / 3; y++)
+        {
+            for (int x = 0; x < mapWidth / 3; x++)
+            {
+                int idx = y * (mapWidth / 3) + x;
+                entityManager.AddComponentData (baseEnemies[idx], new UnitPosition
+                {
+                    Value = new float2 (2 * x * gridWidth, 2 * y * gridHeight),
+                        Offset = baseEnemyDrawOffset
+                });
+                entityManager.AddComponentData (baseEnemies[idx], baseEnemyHeading2D);
+                entityManager.AddComponentData (baseEnemies[idx], new UnitRotation
+                {
+                    Angle = Random.Range (0, 360)
+                });
+                entityManager.AddSharedComponentData (baseEnemies[idx], baseEnemyAnimInfo);
+                entityManager.AddComponentData (baseEnemies[idx], baseEnemySelfAnimData);
+            }
+        }
+        baseEnemies.Dispose ();
     }
 
     private static void InitializeColliderInfomation (EntityManager entityManager)
@@ -110,19 +147,24 @@ public class BillionUnitBootstrap
 
         var renderEntity = entityManager.CreateEntity (
             typeof (UnitPosition), typeof (Heading2D), typeof (TransformMatrix),
-            typeof (TerrainRenderer), typeof (Terrain));
+            typeof (MeshCullingComponent), typeof (TerrainRenderer), typeof (Terrain));
 
         entityManager.SetComponentData (renderEntity, renderer.GetComponent<UnitPositionComponent> ().Value);
         entityManager.SetComponentData (renderEntity, renderer.GetComponent<Heading2DComponent> ().Value);
         entityManager.SetComponentData (renderEntity, renderer.GetComponent<TerrainComponent> ().Value);
         entityManager.SetSharedComponentData (renderEntity, renderer.GetComponent<TerrainRendererComponent> ().Value);
+        entityManager.SetComponentData (renderEntity, new MeshCullingComponent
+        {
+            BoundingSphereCenter = new float3 (0.5f, 0, 0.5f),
+                BoundingSphereRadius = 3f
+        });
 
         UnityEngine.Object.Destroy (renderer);
 
         return renderEntity;
     }
 
-    private static GameObject SetUpAnimData (string name, EntityManager entityManager)
+    private static GameObjectEntity SetUpAnimData (string name, EntityManager entityManager)
     {
         var originSprite = GameObject.Find (name);
 
@@ -151,7 +193,7 @@ public class BillionUnitBootstrap
 
         Object.Destroy (originSprite);
 
-        return newSprite;
+        return newSprite.GetComponent<GameObjectEntity> ();
     }
 
     #endregion
