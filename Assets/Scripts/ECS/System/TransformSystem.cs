@@ -13,6 +13,7 @@ public class TransformSystem : JobComponentSystem
         public ComponentDataArray<TransformMatrix> Matrixs;
         [ReadOnly] public ComponentDataArray<UnitPosition> Positioins;
         [ReadOnly] public SubtractiveComponent<Heading2D> Rotations;
+        [ReadOnly] public SubtractiveComponent<StaticTransform> StaticTransMarks;
         public int Length;
     }
 
@@ -23,6 +24,7 @@ public class TransformSystem : JobComponentSystem
         public ComponentDataArray<TransformMatrix> Matrixs;
         [ReadOnly] public ComponentDataArray<UnitPosition> Positioins;
         [ReadOnly] public ComponentDataArray<Heading2D> Rotations;
+        [ReadOnly] public SubtractiveComponent<StaticTransform> StaticTransMarks;
         public int Length;
     }
 

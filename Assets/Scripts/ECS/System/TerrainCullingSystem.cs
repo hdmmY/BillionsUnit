@@ -7,7 +7,7 @@ using UnityEditor;
 using UnityEngine;
 
 [ExecuteInEditMode]
-[UpdateAfter (typeof (TerrainRenderingSystem))]
+[UpdateAfter (typeof (TerrainCullingSystem))]
 public class TerrainCullingBarrier : BarrierSystem { }
 
 [ExecuteInEditMode]
@@ -46,8 +46,6 @@ public class TerrainCullingSystem : JobComponentSystem
                 x[i] = center.x;
                 y[i] = center.y;
                 z[i] = center.z;
-                // float scale = math.max (math.max (transform[start + i].Value.m0.x, transform[start + i].Value.m1.y),
-                //     transform[start + i].Value.m2.z);
                 r[i] = Spheres[start + i].BoundingSphereRadius;
                 cull[i] = Spheres[start + i].CullStatus;
             }
@@ -69,14 +67,6 @@ public class TerrainCullingSystem : JobComponentSystem
         public float4 RightY;
         public float4 RightZ;
         public float4 RightDist;
-        public float4 TopX;
-        public float4 TopY;
-        public float4 TopZ;
-        public float4 TopDist;
-        public float4 BottomX;
-        public float4 BottomY;
-        public float4 BottomZ;
-        public float4 BottomDist;
     }
 
     [ComputeJobOptimization]
@@ -101,13 +91,8 @@ public class TerrainCullingSystem : JobComponentSystem
             {
                 var leftDist = Planes[p].LeftX * x + Planes[p].LeftY * y + Planes[p].LeftZ * z - Planes[p].LeftDist + r;
                 var rightDist = Planes[p].RightX * x + Planes[p].RightY * y + Planes[p].RightZ * z - Planes[p].RightDist + r;
-                var topDist = Planes[p].TopX * x + Planes[p].TopY * y + Planes[p].TopZ * z - Planes[p].TopDist + r;
-                var bottomDist = Planes[p].BottomX * x + Planes[p].BottomY * y + Planes[p].BottomZ * z - Planes[p].BottomDist + r;
 
-                var newCullDist = leftDist;
-                newCullDist = math.min (newCullDist, rightDist);
-                newCullDist = math.min (newCullDist, topDist);
-                newCullDist = math.min (newCullDist, bottomDist);
+                var newCullDist = math.min (leftDist, rightDist);
                 cullDist = math.max (cullDist, newCullDist);
             }
 
@@ -174,10 +159,6 @@ public class TerrainCullingSystem : JobComponentSystem
         float leftPlaneDist = -_cameraPlanes[0].distance;
         float3 rightPlaneNormal = _cameraPlanes[1].normal;
         float rightPlaneDist = -_cameraPlanes[1].distance;
-        float3 bottomPlaneNormal = _cameraPlanes[2].normal;
-        float bottomPlaneDist = -_cameraPlanes[2].distance;
-        float3 topPlaneNormal = _cameraPlanes[3].normal;
-        float topPlaneDist = -_cameraPlanes[3].distance;
 
         return new FrustumPlanes
         {
@@ -189,14 +170,6 @@ public class TerrainCullingSystem : JobComponentSystem
                 RightY = rightPlaneNormal.yyyy,
                 RightZ = rightPlaneNormal.zzzz,
                 RightDist = new float4 (rightPlaneDist),
-                TopX = topPlaneNormal.xxxx,
-                TopY = topPlaneNormal.yyyy,
-                TopZ = topPlaneNormal.zzzz,
-                TopDist = new float4 (topPlaneDist),
-                BottomX = bottomPlaneNormal.xxxx,
-                BottomY = bottomPlaneNormal.yyyy,
-                BottomZ = bottomPlaneNormal.zzzz,
-                BottomDist = new float4 (bottomPlaneDist),
         };
     }
 

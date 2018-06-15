@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
@@ -38,13 +39,14 @@ public class BillionUnitBootstrap : MonoBehaviour
 
         InitializeEntityPrefab (entityManager);
         InitializeTerrain (entityManager);
+        StartCoroutine (InitializeZoombies (entityManager));
         InitializeColliderInfomation (entityManager);
     }
 
     private void InitializeEntityPrefab (EntityManager entityManager)
     {
-        EntityPrefabContainer.Terrain01 = SetUpRenderData (Terrain01Prefab, entityManager);
-        EntityPrefabContainer.UI_Terrain01 = SetUpRenderData (UITerrain01Prefab, entityManager);
+        EntityPrefabContainer.Terrain01 = SetUpRenderData (Terrain01Prefab, entityManager, true);
+        EntityPrefabContainer.UI_Terrain01 = SetUpRenderData (UITerrain01Prefab, entityManager, true);
         EntityPrefabContainer.Barrier = SetUpRenderData (BarrierPrefab, entityManager);
 
         SetUpAnimData (Enemy01Prefab);
@@ -70,10 +72,23 @@ public class BillionUnitBootstrap : MonoBehaviour
             for (int x = 0; x < mapWidth; x++)
             {
                 int idx = y * mapWidth + x;
+                float2 position = new float2 (x * gridWidth, y * gridHeight);
+                float2 drawPosition = position + baseUIDrawOffset;
+                float2 heading = entityManager.GetComponentData<Heading2D> (baseUITiles[idx]).Value;
                 entityManager.SetComponentData (baseUITiles[idx], new UnitPosition
                 {
                     Value = new float2 (x * gridWidth, y * gridHeight),
                         Offset = baseUIDrawOffset
+                });
+                entityManager.SetComponentData (baseUITiles[idx], new TransformMatrix
+                {
+                    Value = new float4x4
+                    {
+                        m0 = new float4 (heading.y, 0.0f, -heading.x, 0.0f),
+                            m1 = new float4 (0.0f, 1.0f, 0.0f, 0.0f),
+                            m2 = new float4 (heading.x, 0.0f, heading.y, 0.0f),
+                            m3 = new float4 (drawPosition.x, 0.0f, drawPosition.y, 1.0f)
+                    }
                 });
             }
         }
@@ -88,32 +103,48 @@ public class BillionUnitBootstrap : MonoBehaviour
             for (int x = 0; x < mapWidth; x++)
             {
                 int idx = y * mapWidth + x;
+                float2 position = new float2 (x * gridWidth, y * gridHeight);
+                float2 drawPosition = position + baseTerrainDrawOffset;
+                float2 heading = entityManager.GetComponentData<Heading2D> (baseTerrs[idx]).Value;
                 entityManager.SetComponentData (baseTerrs[idx], new UnitPosition
                 {
                     Value = new float2 (x * gridWidth, y * gridHeight),
                         Offset = baseTerrainDrawOffset
                 });
+                entityManager.SetComponentData (baseTerrs[idx], new TransformMatrix
+                {
+                    Value = new float4x4
+                    {
+                        m0 = new float4 (heading.y, 0.0f, -heading.x, 0.0f),
+                            m1 = new float4 (0.0f, 1.0f, 0.0f, 0.0f),
+                            m2 = new float4 (heading.x, 0.0f, heading.y, 0.0f),
+                            m3 = new float4 (drawPosition.x, 0.0f, drawPosition.y, 1.0f)
+                    }
+                });
             }
         }
         baseTerrs.Dispose ();
 
-        // Instanlize zombies
+
+    }
+
+    private IEnumerator InitializeZoombies (EntityManager entityManager)
+    {
+        int mapWidth = GameSettingSingleton.MAP_WIDTH;
+        int mapHeight = GameSettingSingleton.MAP_HEIGHT;
+
+        float gridWidth = GameSettingSingleton.GRID_WIDTH;
+        float gridHeight = GameSettingSingleton.GRID_HEIGHT;
+
         var baseEnemyDrawOffset = EntityPrefabContainer.Enemy01.GetComponent<UnitPositionComponent> ().Value.Offset;
-        var baseEnemies = new NativeArray<Entity> ((mapWidth / 5) * (mapHeight / 5), Allocator.Temp);
-        for (int y = 0; y < mapHeight / 5; y++)
+        var baseEnemies = new NativeArray<Entity> ((mapWidth / 3) * (mapHeight / 3), Allocator.Persistent);
+        for (int y = 0; y < mapHeight / 3; y++)
         {
-            for (int x = 0; x < mapWidth / 5; x++)
+            for (int x = 0; x < mapWidth / 3; x++)
             {
-                int idx = y * (mapWidth / 5) + x;
+                int idx = y * (mapWidth / 3) + x;
                 baseEnemies[idx] = Object.Instantiate (EntityPrefabContainer.Enemy01)
                     .GetComponent<UnitGameEntityComponent> ().Entity;
-            }
-        }
-        for (int y = 0; y < mapHeight / 5; y++)
-        {
-            for (int x = 0; x < mapWidth / 5; x++)
-            {
-                int idx = y * (mapWidth / 5) + x;
                 entityManager.SetComponentData (baseEnemies[idx], new UnitPosition
                 {
                     Value = new float2 (2 * x * gridWidth, 2 * y * gridHeight),
@@ -123,6 +154,7 @@ public class BillionUnitBootstrap : MonoBehaviour
                 {
                     Angle = Random.Range (0, 360)
                 });
+                yield return null;
             }
         }
         baseEnemies.Dispose ();
@@ -142,17 +174,29 @@ public class BillionUnitBootstrap : MonoBehaviour
 
     #region Helper Methods
 
-    private static Entity SetUpRenderData (GameObject renderer, EntityManager entityManager)
+    private static Entity SetUpRenderData (GameObject renderer, EntityManager entityManager, bool isstatic = false)
     {
-        var renderEntity = entityManager.CreateEntity (
-            typeof (UnitPosition), typeof (Heading2D), typeof (TransformMatrix),
-            typeof (TerrainCulling), typeof (TerrainRenderer), typeof (Terrain));
+        Entity renderEntity;
+
+        if (isstatic)
+        {
+            renderEntity = entityManager.CreateEntity (
+                typeof (UnitPosition), typeof (Heading2D), typeof (TransformMatrix), typeof (StaticTransform),
+                typeof (TerrainRenderer), typeof (Terrain));
+
+        }
+        else
+        {
+            renderEntity = entityManager.CreateEntity (
+                typeof (UnitPosition), typeof (Heading2D), typeof (TransformMatrix),
+                typeof (TerrainRenderer), typeof (Terrain));
+
+        }
 
         entityManager.SetComponentData (renderEntity, renderer.GetComponent<UnitPositionComponent> ().Value);
         entityManager.SetComponentData (renderEntity, renderer.GetComponent<Heading2DComponent> ().Value);
         entityManager.SetComponentData (renderEntity, renderer.GetComponent<TerrainComponent> ().Value);
         entityManager.SetSharedComponentData (renderEntity, renderer.GetComponent<TerrainRendererComponent> ().Value);
-        entityManager.SetComponentData (renderEntity, renderer.GetComponent<TerrainCullingComponent> ().Value);
 
         return renderEntity;
     }

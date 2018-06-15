@@ -2,7 +2,9 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
+using Unity.Transforms;
 using Unity.Transforms2D;
+using Unity.Jobs;
 
 public class UnitCommandSystem : ComponentSystem
 {
@@ -35,6 +37,8 @@ public class UnitCommandSystem : ComponentSystem
         // Add block
         if (Input.GetMouseButton (0))
         {
+            Debug.Log (x.ToString () + y.ToString ());
+
             if (x > mapWidth || x < 0 || y > mapHeight || y < 0)
             {
                 return;
@@ -63,12 +67,23 @@ public class UnitCommandSystem : ComponentSystem
 
         // Rotate sprite
         var animSpriteRotations = _animSprtes.GetComponentDataArray<UnitRotation> ();
-        for (int i = 0; i < animSpriteRotations.Length; i++)
+        var rotateJob = new RotateSprite
         {
-            animSpriteRotations[i] = new UnitRotation
-            {
-                Angle = animSpriteRotations[i].Angle + Time.deltaTime * 5
-            };
+            DeltaTime = Time.deltaTime,
+                Rotations = animSpriteRotations
+        }.Schedule (animSpriteRotations.Length, 64);
+        rotateJob.Complete ();
+    }
+
+    public struct RotateSprite : IJobParallelFor
+    {
+        public float DeltaTime;
+
+        public ComponentDataArray<UnitRotation> Rotations;
+
+        public void Execute (int index)
+        {
+            Rotations[index] = new UnitRotation { Angle = Rotations[index].Angle + DeltaTime * 5 };
         }
     }
 }

@@ -11,6 +11,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 
 
+[UpdateAfter (typeof (TerrainCullingBarrier))]
 [ExecuteInEditMode]
 public class TerrainRenderingSystem : ComponentSystem
 {

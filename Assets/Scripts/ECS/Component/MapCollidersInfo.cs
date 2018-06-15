@@ -1,4 +1,5 @@
-﻿using Unity.Mathematics;
+﻿using System;
+using Unity.Mathematics;
 using Unity.Entities;
 using Unity.Collections;
 
@@ -13,10 +14,20 @@ public static class MapCollidersSingleton
     public static int Length;
 }
 
+[Flags]
+public enum IntegrateFlag : byte
+{
+    None = 0,
+    LineOfSight = 1
+}
+
 public struct MapColliderInfo
 {
-    // Low 8 bit is cost field, high 24 bit is integration field
-    public int CostAndIntegrationField;
+    public byte CostField;
+
+    public float IntegrationField;
+
+    public IntegrateFlag IntegrateInfo;
 
     public float2 FlowField;
 }

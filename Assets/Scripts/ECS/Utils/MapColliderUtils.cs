@@ -7,11 +7,11 @@ public static class MapColliderUtils
     {
         if (idx >= MapCollidersSingleton.Length || idx < 0) return;
 
-        int newVal = MapCollidersSingleton.Infos[idx].CostAndIntegrationField + (value & 0x000000ff);
+        byte newVal = (byte) (MapCollidersSingleton.Infos[idx].CostField + value);
 
         MapCollidersSingleton.Infos[idx] = new MapColliderInfo
         {
-            CostAndIntegrationField = newVal,
+            CostField = newVal,
             FlowField = MapCollidersSingleton.Infos[idx].FlowField
         };
     }
@@ -20,6 +20,6 @@ public static class MapColliderUtils
     {
         if (idx >= MapCollidersSingleton.Length || idx < 0) return false;
 
-        return (MapCollidersSingleton.Infos[idx].CostAndIntegrationField & 0x000000ff) == 0x000000ff;
+        return MapCollidersSingleton.Infos[idx].CostField == 0xff;
     }
 }

@@ -10,7 +10,7 @@ public class SyncTransformSystem : ComponentSystem
     {
         [ReadOnly] public ComponentDataArray<UnitPosition> Positions;
 
-        [ReadOnly] public ComponentDataArray<Heading2D> Headings;
+        // [ReadOnly] public ComponentDataArray<Heading2D> Headings;
 
         public ComponentArray<Transform> Outputs;
 
@@ -24,7 +24,7 @@ public class SyncTransformSystem : ComponentSystem
         for (int i = 0; i < _initTransDatas.Length; i++)
         {
             float2 position = _initTransDatas.Positions[i].DrawValue;
-            float2 heading = _initTransDatas.Headings[i].Value;
+            // float2 heading = _initTransDatas.Headings[i].Value;
 
             _initTransDatas.Outputs[i].position = new float3 (position.x, 0, position.y);
         }
