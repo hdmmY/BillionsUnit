@@ -47,7 +47,7 @@ public class BillionUnitBootstrap : MonoBehaviour
     {
         EntityPrefabContainer.Terrain01 = SetUpRenderData (Terrain01Prefab, entityManager, true);
         EntityPrefabContainer.UI_Terrain01 = SetUpRenderData (UITerrain01Prefab, entityManager, true);
-        EntityPrefabContainer.Barrier = SetUpRenderData (BarrierPrefab, entityManager);
+        EntityPrefabContainer.Barrier = SetUpRenderData (BarrierPrefab, entityManager, true);
 
         SetUpAnimData (Enemy01Prefab);
         EntityPrefabContainer.Enemy01 = Enemy01Prefab;
@@ -82,13 +82,7 @@ public class BillionUnitBootstrap : MonoBehaviour
                 });
                 entityManager.SetComponentData (baseUITiles[idx], new TransformMatrix
                 {
-                    Value = new float4x4
-                    {
-                        m0 = new float4 (heading.y, 0.0f, -heading.x, 0.0f),
-                            m1 = new float4 (0.0f, 1.0f, 0.0f, 0.0f),
-                            m2 = new float4 (heading.x, 0.0f, heading.y, 0.0f),
-                            m3 = new float4 (drawPosition.x, 0.0f, drawPosition.y, 1.0f)
-                    }
+                    Value = MathUtils.GetTransformMatrix(drawPosition, heading)
                 });
             }
         }
@@ -113,13 +107,7 @@ public class BillionUnitBootstrap : MonoBehaviour
                 });
                 entityManager.SetComponentData (baseTerrs[idx], new TransformMatrix
                 {
-                    Value = new float4x4
-                    {
-                        m0 = new float4 (heading.y, 0.0f, -heading.x, 0.0f),
-                            m1 = new float4 (0.0f, 1.0f, 0.0f, 0.0f),
-                            m2 = new float4 (heading.x, 0.0f, heading.y, 0.0f),
-                            m3 = new float4 (drawPosition.x, 0.0f, drawPosition.y, 1.0f)
-                    }
+                    Value = MathUtils.GetTransformMatrix (drawPosition, heading)
                 });
             }
         }
@@ -130,24 +118,24 @@ public class BillionUnitBootstrap : MonoBehaviour
 
     private IEnumerator InitializeZoombies (EntityManager entityManager)
     {
-        int mapWidth = GameSettingSingleton.MAP_WIDTH;
-        int mapHeight = GameSettingSingleton.MAP_HEIGHT;
+        int xSpawn = 30;
+        int ySpawn = 30;
 
         float gridWidth = GameSettingSingleton.GRID_WIDTH;
         float gridHeight = GameSettingSingleton.GRID_HEIGHT;
 
         var baseEnemyDrawOffset = EntityPrefabContainer.Enemy01.GetComponent<UnitPositionComponent> ().Value.Offset;
-        var baseEnemies = new NativeArray<Entity> ((mapWidth / 3) * (mapHeight / 3), Allocator.Persistent);
-        for (int y = 0; y < mapHeight / 3; y++)
+        var baseEnemies = new NativeArray<Entity> (xSpawn * ySpawn, Allocator.Persistent);
+        for (int y = 0; y < ySpawn; y++)
         {
-            for (int x = 0; x < mapWidth / 3; x++)
+            for (int x = 0; x < xSpawn; x++)
             {
-                int idx = y * (mapWidth / 3) + x;
+                int idx = y * xSpawn + x;
                 baseEnemies[idx] = Object.Instantiate (EntityPrefabContainer.Enemy01)
                     .GetComponent<UnitGameEntityComponent> ().Entity;
                 entityManager.SetComponentData (baseEnemies[idx], new UnitPosition
                 {
-                    Value = new float2 (2 * x * gridWidth, 2 * y * gridHeight),
+                    Value = new float2 (x * gridWidth, y * gridHeight),
                         Offset = baseEnemyDrawOffset
                 });
                 entityManager.SetComponentData (baseEnemies[idx], new UnitRotation

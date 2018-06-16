@@ -15,8 +15,8 @@ public class TerrainCullingSystem : JobComponentSystem
 {
     struct BoundingSphere
     {
-        public ComponentDataArray<TerrainCulling> Spheres;
-        public ComponentDataArray<TransformMatrix> Transforms;
+        [ReadOnly] public ComponentDataArray<TerrainCulling> Spheres;
+        [ReadOnly] public ComponentDataArray<TransformMatrix> Transforms;
         public EntityArray Entities;
         public int Length;
     }

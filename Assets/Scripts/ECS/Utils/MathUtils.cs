@@ -26,4 +26,16 @@ public static class MathUtils
 
         return angle;
     }
+
+    public static float4x4 GetTransformMatrix (float2 position, float2 heading)
+    {
+        heading = math.normalize (heading);
+        return new float4x4
+        {
+            m0 = new float4 (heading.y, 0.0f, -heading.x, 0.0f),
+                m1 = new float4 (0.0f, 1.0f, 0.0f, 0.0f),
+                m2 = new float4 (heading.x, 0.0f, heading.y, 0.0f),
+                m3 = new float4 (position.x, 0.0f, position.y, 1.0f)
+        };
+    }
 }

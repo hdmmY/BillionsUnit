@@ -90,7 +90,7 @@ MonoBehaviour:
       x: 0
       y: 0
     Offset:
-      x: -0.141
+      x: 0.859
       y: 0.04
 --- !u!114 &114388080827432588
 MonoBehaviour:
