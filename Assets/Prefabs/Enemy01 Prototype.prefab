@@ -27,6 +27,7 @@ GameObject:
   - component: {fileID: 114982960599602124}
   - component: {fileID: 114388080827432588}
   - component: {fileID: 114858460023058450}
+  - component: {fileID: 114959360493498118}
   m_Layer: 0
   m_Name: Enemy01 Prototype
   m_TagString: Untagged
@@ -135,6 +136,25 @@ MonoBehaviour:
     CurrentClipIdx: 0
     CurrentFrameIdx: 0
     CurrentFrameDuration: 0
+--- !u!114 &114959360493498118
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1785311155150030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2af5531df4a44fa47b79eb9b447c986b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SerializedData:
+    NavMoving: 0
+    Target:
+      x: 0
+      y: 0
+    Velocity:
+      x: 0
+      y: 0
 --- !u!114 &114982960599602124
 MonoBehaviour:
   m_ObjectHideFlags: 1

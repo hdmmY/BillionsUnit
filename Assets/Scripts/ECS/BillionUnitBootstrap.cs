@@ -55,38 +55,38 @@ public class BillionUnitBootstrap : MonoBehaviour
 
     private void InitializeTerrain (EntityManager entityManager)
     {
-        int mapWidth = GameSettingSingleton.MAP_WIDTH;
-        int mapHeight = GameSettingSingleton.MAP_HEIGHT;
+        int mapWidth = GameSetting.MAP_WIDTH;
+        int mapHeight = GameSetting.MAP_HEIGHT;
 
-        float gridWidth = GameSettingSingleton.GRID_WIDTH;
-        float gridHeight = GameSettingSingleton.GRID_HEIGHT;
+        float gridWidth = GameSetting.GRID_WIDTH;
+        float gridHeight = GameSetting.GRID_HEIGHT;
 
         float gridCullRadius = 1.5f * math.sqrt (gridWidth * gridWidth + gridHeight * gridHeight);
 
-        // Initialize ui terrain
-        var baseUIDrawOffset = entityManager.GetComponentData<UnitPosition> (EntityPrefabContainer.UI_Terrain01).Offset;
-        var baseUITiles = new NativeArray<Entity> (mapWidth * mapHeight, Allocator.Temp);
-        entityManager.Instantiate (EntityPrefabContainer.UI_Terrain01, baseUITiles);
-        for (int y = 0; y < mapHeight; y++)
-        {
-            for (int x = 0; x < mapWidth; x++)
-            {
-                int idx = y * mapWidth + x;
-                float2 position = new float2 (x * gridWidth, y * gridHeight);
-                float2 drawPosition = position + baseUIDrawOffset;
-                float2 heading = entityManager.GetComponentData<Heading2D> (baseUITiles[idx]).Value;
-                entityManager.SetComponentData (baseUITiles[idx], new UnitPosition
-                {
-                    Value = new float2 (x * gridWidth, y * gridHeight),
-                        Offset = baseUIDrawOffset
-                });
-                entityManager.SetComponentData (baseUITiles[idx], new TransformMatrix
-                {
-                    Value = MathUtils.GetTransformMatrix(drawPosition, heading)
-                });
-            }
-        }
-        baseUITiles.Dispose ();
+        // // Initialize ui terrain
+        // var baseUIDrawOffset = entityManager.GetComponentData<UnitPosition> (EntityPrefabContainer.UI_Terrain01).Offset;
+        // var baseUITiles = new NativeArray<Entity> (mapWidth * mapHeight, Allocator.Temp);
+        // entityManager.Instantiate (EntityPrefabContainer.UI_Terrain01, baseUITiles);
+        // for (int y = 0; y < mapHeight; y++)
+        // {
+        //     for (int x = 0; x < mapWidth; x++)
+        //     {
+        //         int idx = y * mapWidth + x;
+        //         float2 position = new float2 (x * gridWidth, y * gridHeight);
+        //         float2 drawPosition = position + baseUIDrawOffset;
+        //         float2 heading = entityManager.GetComponentData<Heading2D> (baseUITiles[idx]).Value;
+        //         entityManager.SetComponentData (baseUITiles[idx], new UnitPosition
+        //         {
+        //             Value = new float2 (x * gridWidth, y * gridHeight),
+        //                 Offset = baseUIDrawOffset
+        //         });
+        //         entityManager.SetComponentData (baseUITiles[idx], new TransformMatrix
+        //         {
+        //             Value = MathUtils.GetTransformMatrix (drawPosition, heading)
+        //         });
+        //     }
+        // }
+        // baseUITiles.Dispose ();
 
         // Initialize base terrain
         var baseTerrainDrawOffset = entityManager.GetComponentData<UnitPosition> (EntityPrefabContainer.Terrain01).Offset;
@@ -121,8 +121,8 @@ public class BillionUnitBootstrap : MonoBehaviour
         int xSpawn = 30;
         int ySpawn = 30;
 
-        float gridWidth = GameSettingSingleton.GRID_WIDTH;
-        float gridHeight = GameSettingSingleton.GRID_HEIGHT;
+        float gridWidth = GameSetting.GRID_WIDTH;
+        float gridHeight = GameSetting.GRID_HEIGHT;
 
         var baseEnemyDrawOffset = EntityPrefabContainer.Enemy01.GetComponent<UnitPositionComponent> ().Value.Offset;
         var baseEnemies = new NativeArray<Entity> (xSpawn * ySpawn, Allocator.Persistent);
@@ -135,7 +135,7 @@ public class BillionUnitBootstrap : MonoBehaviour
                     .GetComponent<UnitGameEntityComponent> ().Entity;
                 entityManager.SetComponentData (baseEnemies[idx], new UnitPosition
                 {
-                    Value = new float2 (x * gridWidth, y * gridHeight),
+                    Value = new float2 (0.5f * x * gridWidth, 0.5f * y * gridHeight),
                         Offset = baseEnemyDrawOffset
                 });
                 entityManager.SetComponentData (baseEnemies[idx], new UnitRotation
@@ -150,8 +150,8 @@ public class BillionUnitBootstrap : MonoBehaviour
 
     private void InitializeColliderInfomation (EntityManager entityManager)
     {
-        int mapWidth = GameSettingSingleton.MAP_WIDTH;
-        int mapHeight = GameSettingSingleton.MAP_HEIGHT;
+        int mapWidth = GameSetting.MAP_WIDTH;
+        int mapHeight = GameSetting.MAP_HEIGHT;
 
         MapCollidersSingleton.Infos = new MapColliderInfo[mapWidth * mapHeight];
         MapCollidersSingleton.Length = mapWidth * mapHeight;

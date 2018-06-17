@@ -49,7 +49,7 @@ public struct MapColliderInfo
 {
     public byte CostField;
 
-    public float IntegrationField;
+    public int IntegrationField;
 
     public IntegrateFlag IntegrateInfo;
 

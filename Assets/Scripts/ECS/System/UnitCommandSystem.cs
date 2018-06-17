@@ -12,8 +12,8 @@ public class UnitCommandSystem : ComponentSystem
 
     protected override void OnUpdate ()
     {
-        int mapWidth = GameSettingSingleton.MAP_WIDTH;
-        int mapHeight = GameSettingSingleton.MAP_HEIGHT;
+        int mapWidth = GameSetting.MAP_WIDTH;
+        int mapHeight = GameSetting.MAP_HEIGHT;
 
         if (_camera == null) _camera = Camera.main;
 
@@ -42,7 +42,7 @@ public class UnitCommandSystem : ComponentSystem
             MapColliderUtils.SetCostValue (idx, 255);
 
             // Instantiate a barrier on (x, y)
-            var barrierEntity = EntityManager.Instantiate (EntityPrefabContainer.Barrier);
+            var barrierEntity = EntityManager.Instantiate (EntityPrefabContainer.UI_Terrain01);
             var drawOffset = EntityManager.GetComponentData<UnitPosition> (barrierEntity).Offset;
             EntityManager.SetComponentData (barrierEntity, new UnitPosition
             {

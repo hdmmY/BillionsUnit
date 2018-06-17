@@ -45,7 +45,8 @@ public class UnitGameEntityComponent : GameObjectEntity
                 typeof (Transform), typeof (SpriteRenderer),
                 typeof (SimpleSpriteAnimCollectionComponent), typeof (UnitGameEntityComponent),
                 typeof (UnitPosition), typeof (Heading2D), typeof (UnitRotation),
-                typeof (SimpleAnimInfomation), typeof (SelfSimpleSpriteAnimData));
+                typeof (SimpleAnimInfomation), typeof (SelfSimpleSpriteAnimData),
+                typeof (NavInfo));
         }
 
         var entity = entityManager.CreateEntity (UnitGameEntityArch.Value);
@@ -95,6 +96,9 @@ public class UnitGameEntityComponent : GameObjectEntity
 
         entityManager.SetComponentData (entity, gameObject.GetComponent<SelfSimpleSpriteAnimDataComponent> ().Value);
         Destroy (gameObject.GetComponent<SelfSimpleSpriteAnimDataComponent> ());
+
+        entityManager.SetComponentData (entity, gameObject.GetComponent<NavInfoComponent> ().Value);
+        Destroy (gameObject.GetComponent<NavInfoComponent> ());
 
         entityManager.SetSharedComponentData (entity, gameObject.GetComponent<SimpleAnimInfomationComponent> ().Value);
         Destroy (gameObject.GetComponent<SimpleAnimInfomationComponent> ());
