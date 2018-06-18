@@ -88,8 +88,6 @@ public class SimplePathGenerator : MonoBehaviour
         {
             for (int x = 1; x < (mapWidth - 1); x++)
             {
-                if (tiles[x, y].FlowField == FlowFieldDir.None) continue;
-
                 origin.x = x + 0.5f;
                 origin.z = y + 0.5f;
                 float2 dir = 0.5f * TileColliderInfo.FlowFieldVector[(int) tiles[x, y].FlowField];

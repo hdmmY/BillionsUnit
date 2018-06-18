@@ -13,7 +13,7 @@ public static class MathUtils
         if (angle < 0) angle += 360;
         if (angle >= 360) angle -= 360;
 
-        return angle;
+        return 360 - angle;
     }
 
     public static float DirectionToAngle (Vector2 dir)

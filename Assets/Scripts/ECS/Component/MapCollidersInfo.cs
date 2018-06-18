@@ -80,6 +80,7 @@ public struct TileColliderInfo
         new float2 (0f, -1f),
         new float2 (0.3826836f, -0.9238794f),
         new float2 (0.7071066f, -0.7071069f),
-        new float2 (0.9238797f, -0.382683f)
+        new float2 (0.9238797f, -0.382683f),
+        new float2 (0f, 0f)
     };
 }

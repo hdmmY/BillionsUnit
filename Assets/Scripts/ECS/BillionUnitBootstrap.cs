@@ -39,7 +39,7 @@ public class BillionUnitBootstrap : MonoBehaviour
 
         InitializeEntityPrefab (entityManager);
         InitializeTerrain (entityManager);
-        // StartCoroutine (InitializeZoombies (entityManager));
+        StartCoroutine (InitializeZoombies (entityManager));
         InitializeColliderInfomation (entityManager);
     }
 
@@ -49,7 +49,7 @@ public class BillionUnitBootstrap : MonoBehaviour
         EntityPrefabContainer.UI_Terrain01 = SetUpRenderData (UITerrain01Prefab, entityManager, true);
         EntityPrefabContainer.Barrier = SetUpRenderData (BarrierPrefab, entityManager, true);
 
-        SetUpAnimData (Enemy01Prefab);
+        // SetUpAnimData (Enemy01Prefab);
         EntityPrefabContainer.Enemy01 = Enemy01Prefab;
     }
 
@@ -118,8 +118,8 @@ public class BillionUnitBootstrap : MonoBehaviour
 
     private IEnumerator InitializeZoombies (EntityManager entityManager)
     {
-        int xSpawn = 30;
-        int ySpawn = 30;
+        int xSpawn = 1;
+        int ySpawn = 1;
 
         float gridWidth = GameSetting.GRID_WIDTH;
         float gridHeight = GameSetting.GRID_HEIGHT;
@@ -135,12 +135,12 @@ public class BillionUnitBootstrap : MonoBehaviour
                     .GetComponent<UnitGameEntityComponent> ().Entity;
                 entityManager.SetComponentData (baseEnemies[idx], new UnitPosition
                 {
-                    Value = new float2 (0.5f * x * gridWidth, 0.5f * y * gridHeight),
+                    Value = new float2 (2 + 0.5f * x * gridWidth, 2 + 0.5f * y * gridHeight),
                         Offset = baseEnemyDrawOffset
                 });
                 entityManager.SetComponentData (baseEnemies[idx], new UnitRotation
                 {
-                    Angle = Random.Range (0, 360)
+                    Angle = 0
                 });
                 yield return null;
             }

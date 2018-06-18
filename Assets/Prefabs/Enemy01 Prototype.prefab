@@ -107,7 +107,7 @@ MonoBehaviour:
   m_SerializedData:
     AnimNumber: 10
     FramePerClip: 17
-    FrameDuration: 0.06
+    FrameDuration: 0.015
     StartAngle: 135
     DeltAngle: -18
 --- !u!114 &114667295699768998
@@ -149,12 +149,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_SerializedData:
     NavMoving: 0
-    Target:
-      x: 0
-      y: 0
     Velocity:
       x: 0
       y: 0
+    Target:
+      x: 0
+      y: 0
+    Mass: 0
+    MaxForce: 0
+    MaxVelocity: 2
 --- !u!114 &114982960599602124
 MonoBehaviour:
   m_ObjectHideFlags: 1

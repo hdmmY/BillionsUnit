@@ -19,7 +19,19 @@ public class UnitCommandSystem : ComponentSystem
         public ComponentDataArray<UnitPosition> Positions;
     }
 
+    public struct NavUnits
+    {
+        public int Length;
+
+        public EntityArray Entities;
+
+        public ComponentDataArray<NavInfo> NavInfos;
+    }
+
     [Inject] BarrierData _barries;
+
+    [Inject] NavUnits _navUnits;
+
 
     private Camera _camera;
 
@@ -36,6 +48,9 @@ public class UnitCommandSystem : ComponentSystem
 
         int x = (int) pos.x;
         int y = (int) pos.z;
+
+
+        var pathController = GameObject.FindObjectOfType (typeof (SimplePathGenerator)) as SimplePathGenerator;
 
         // Add block
         if (Input.GetMouseButton (0))
@@ -65,6 +80,8 @@ public class UnitCommandSystem : ComponentSystem
             {
                 Value = MathUtils.GetTransformMatrix (drawPosition, heading)
             });
+
+            pathController.Generate ();
         }
 
         // Remove block
@@ -85,6 +102,26 @@ public class UnitCommandSystem : ComponentSystem
                         }
                     }
                 }
+                pathController.Generate ();
+            }
+        }
+
+        if (Input.GetMouseButtonDown (2))
+        {
+            pathController.Target = new int2 (x, y);
+            pathController.Generate();
+        }
+
+
+        // Make unit nav
+        if (Input.GetKeyDown (KeyCode.N))
+        {
+            for (int i = 0; i < _navUnits.Length; i++)
+            {
+                var oldNav = _navUnits.NavInfos[i];
+                oldNav.NavMoving = (byte) ~oldNav.NavMoving;
+                oldNav.Target = pathController.Target;
+                EntityManager.SetComponentData (_navUnits.Entities[i], oldNav);
             }
         }
     }
