@@ -101,6 +101,8 @@ public static class NavUtils
         {
             var bestNode = openList.Dequeue ();
 
+            Debug.Log (bestNode.Node.ToString () + "  " + bestNode.Dir.ToString ());
+
             CanonicalOrdering (openList, map, bestNode.Node, bestNode.Dir,
                 tiles[bestNode.Node.x, bestNode.Node.y].IntegrationField);
         }
@@ -110,6 +112,19 @@ public static class NavUtils
 
 
     #region Private Helper
+
+    private class PathNode : FastPriorityQueueNode
+    {
+        public int2 Node;
+
+        public int2 Dir;
+
+        public PathNode (int2 node, int2 direction)
+        {
+            Node = node;
+            Dir = direction;
+        }
+    }
 
     private static void CanonicalOrdering (FastPriorityQueue<PathNode> openList, MapColliderInfo map, int2 node, int2 dir, float cost)
     {
@@ -126,6 +141,7 @@ public static class NavUtils
     private static void MoveCardinal (FastPriorityQueue<PathNode> openList, MapColliderInfo map, int2 start, int2 dir, float cost)
     {
         start += dir;
+        cost += 1;
 
         while (!MapColliderUtils.UnReachable (map, start.x, start.y))
         {
@@ -150,7 +166,9 @@ public static class NavUtils
                 {
                     map.Infos[start.x, start.y].IntegrateInfo &= ~IntegrateFlag.Visited;
                 }
-                map.Infos[start.x, start.y].IntegrationField = cost;
+                map.Infos[start.x, start.y].IntegrationField = math.min (
+                    map.Infos[start.x, start.y].IntegrationField, cost);
+                if (start.x == 14 && start.y == 14) Debug.Log (cost);
                 openList.Enqueue (new PathNode (start, newdir), cost);
                 return;
             }
@@ -176,6 +194,7 @@ public static class NavUtils
             {
                 if (map.Infos[start.x, start.y].IntegrationField > cost)
                 {
+                    Debug.Log (start);
                     map.Infos[start.x, start.y].IntegrationField = cost;
                 }
                 else
@@ -189,11 +208,19 @@ public static class NavUtils
                 map.Infos[start.x, start.y].IntegrationField = cost;
             }
 
-            MoveCardinal (openList, map, start, new int2 (dir.x, 0), cost + 1);
-            MoveCardinal (openList, map, start, new int2 (0, dir.y), cost + 1);
+            MoveCardinal (openList, map, start, new int2 (dir.x, 0), cost);
+            MoveCardinal (openList, map, start, new int2 (0, dir.y), cost);
 
-            start += dir;
-            cost += 1.5f;
+            if (!MapColliderUtils.UnReachable (map, start + new int2 (dir.x, 0)) ||
+                !MapColliderUtils.UnReachable (map, start + new int2 (0, dir.y)))
+            {
+                start += dir;
+                cost += 1.5f;
+            }
+            else
+            {
+                return;
+            }
         }
     }
 
@@ -204,7 +231,18 @@ public static class NavUtils
 
         if (MapColliderUtils.UnReachable (map, next.x, next.y)) return;
 
-        float cost = (dir.x != 0 && dir.y != 0) ? 1.5f : 1f;
+        float cost = 1f;
+
+        if (dir.x != 0 && dir.y != 0)
+        {
+            if (MapColliderUtils.UnReachable (map, origin + new int2 (dir.x, 0)) &&
+                MapColliderUtils.UnReachable (map, origin + new int2 (0, dir.y)))
+            {
+                return;
+            }
+
+            cost = 1.5f;
+        }
 
         map.Infos[next.x, next.y].IntegrationField = cost;
         openList.Enqueue (new PathNode (next, dir), cost);
@@ -257,18 +295,4 @@ public static class NavUtils
     }
 
     #endregion
-}
-
-
-public class PathNode : FastPriorityQueueNode
-{
-    public int2 Node;
-
-    public int2 Dir;
-
-    public PathNode (int2 node, int2 direction)
-    {
-        Node = node;
-        Dir = direction;
-    }
 }

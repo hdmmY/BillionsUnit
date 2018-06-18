@@ -306,7 +306,7 @@ GameObject:
   - component: {fileID: 991003883}
   - component: {fileID: 991003885}
   m_Layer: 5
-  m_Name: Text
+  m_Name: FPS Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -885,7 +885,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CostUIPrefab: {fileID: 1603203265122874, guid: b816a6555a4fb504fa896f7e279b9d08,
     type: 2}
-  CostField: 0
+  UseCanonicalDij: 0
   Target:
     x: 10
     y: 10

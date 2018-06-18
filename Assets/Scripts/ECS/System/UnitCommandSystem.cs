@@ -8,6 +8,19 @@ using Unity.Jobs;
 
 public class UnitCommandSystem : ComponentSystem
 {
+    public struct BarrierData
+    {
+        public int Length;
+
+        public EntityArray Entities;
+
+        public ComponentDataArray<Terrain> Terrains;
+
+        public ComponentDataArray<UnitPosition> Positions;
+    }
+
+    [Inject] BarrierData _barries;
+
     private Camera _camera;
 
     protected override void OnUpdate ()
@@ -27,11 +40,6 @@ public class UnitCommandSystem : ComponentSystem
         // Add block
         if (Input.GetMouseButton (0))
         {
-            if (x > mapWidth || x < 0 || y > mapHeight || y < 0)
-            {
-                return;
-            }
-
             if (MapColliderUtils.UnReachable (MapColliderInfo.GameMap, x, y))
             {
                 return;
@@ -42,6 +50,10 @@ public class UnitCommandSystem : ComponentSystem
             // Instantiate a barrier on (x, y)
             var barrierEntity = EntityManager.Instantiate (EntityPrefabContainer.UI_Terrain01);
             var drawOffset = EntityManager.GetComponentData<UnitPosition> (barrierEntity).Offset;
+            EntityManager.SetComponentData (barrierEntity, new Terrain
+            {
+                TerrainType = TerrainType.Barrier
+            });
             EntityManager.SetComponentData (barrierEntity, new UnitPosition
             {
                 Value = new float2 (x, y),
@@ -53,6 +65,27 @@ public class UnitCommandSystem : ComponentSystem
             {
                 Value = MathUtils.GetTransformMatrix (drawPosition, heading)
             });
+        }
+
+        // Remove block
+        if (Input.GetMouseButton (1))
+        {
+            if (MapColliderUtils.IsWall (MapColliderInfo.GameMap, x, y))
+            {
+                for (int i = 0; i < _barries.Length; i++)
+                {
+                    if (_barries.Terrains[i].TerrainType == TerrainType.Barrier)
+                    {
+                        int2 position = (int2) _barries.Positions[i].Value;
+
+                        if (position.x == x && position.y == y)
+                        {
+                            PostUpdateCommands.DestroyEntity (_barries.Entities[i]);
+                            MapColliderUtils.SetCostValue (MapColliderInfo.GameMap, x, y, 0);
+                        }
+                    }
+                }
+            }
         }
     }
 }
