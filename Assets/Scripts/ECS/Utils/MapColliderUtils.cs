@@ -3,23 +3,29 @@ using Unity.Mathematics;
 
 public static class MapColliderUtils
 {
-    public static void SetCostValue (int idx, byte value)
+    public static void SetCostValue (MapColliderInfo map, int x, int y, byte value)
     {
-        if (idx >= MapCollidersSingleton.Length || idx < 0) return;
+        if (x >= map.MapWidth || x < 0) return;
+        if (y >= map.MapHeight || y < 0) return;
 
-        byte newVal = (byte) (MapCollidersSingleton.Infos[idx].CostField + value);
+        byte newVal = (byte) (map.Infos[x, y].CostField + value);
 
-        MapCollidersSingleton.Infos[idx] = new MapColliderInfo
-        {
-            CostField = newVal,
-            FlowField = MapCollidersSingleton.Infos[idx].FlowField
-        };
+        map.Infos[x, y].CostField = newVal;
     }
 
-    public static bool UnReachable (int idx)
+    public static bool UnReachable (MapColliderInfo map, int x, int y)
     {
-        if (idx >= MapCollidersSingleton.Length || idx < 0) return false;
+        if (x >= map.MapWidth || x < 0) return true;
+        if (y >= map.MapHeight || y < 0) return true;
 
-        return MapCollidersSingleton.Infos[idx].CostField == 0xff;
+        return map.Infos[x, y].CostField == 0xff;
+    }
+
+    public static bool IsWall (MapColliderInfo map, int x, int y)
+    {
+        if (x >= map.MapWidth || x < 0) return false;
+        if (y >= map.MapHeight || y < 0) return false;
+
+        return map.Infos[x, y].CostField == 0xff;
     }
 }

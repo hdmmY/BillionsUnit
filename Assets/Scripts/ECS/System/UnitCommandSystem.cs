@@ -23,8 +23,6 @@ public class UnitCommandSystem : ComponentSystem
 
         int x = (int) pos.x;
         int y = (int) pos.z;
-        int idx = x + y * mapWidth;
-
 
         // Add block
         if (Input.GetMouseButton (0))
@@ -34,12 +32,12 @@ public class UnitCommandSystem : ComponentSystem
                 return;
             }
 
-            if (MapColliderUtils.UnReachable (idx))
+            if (MapColliderUtils.UnReachable (MapColliderInfo.GameMap, x, y))
             {
                 return;
             }
 
-            MapColliderUtils.SetCostValue (idx, 255);
+            MapColliderUtils.SetCostValue (MapColliderInfo.GameMap, x, y, 255);
 
             // Instantiate a barrier on (x, y)
             var barrierEntity = EntityManager.Instantiate (EntityPrefabContainer.UI_Terrain01);

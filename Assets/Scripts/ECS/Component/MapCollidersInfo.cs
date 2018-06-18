@@ -4,21 +4,23 @@ using Unity.Entities;
 using Unity.Collections;
 
 
-public static class MapCollidersSingleton
+public class MapColliderInfo
 {
-    public static MapColliderInfo[] Infos;
+    public static MapColliderInfo GameMap;
 
-    /// <summary>
-    /// Readonly
-    /// </summary>
-    public static int Length;
+    public TileColliderInfo[, ] Infos;
+
+    public int MapWidth;
+
+    public int MapHeight;
 }
 
 [Flags]
 public enum IntegrateFlag : byte
 {
-    None = 0,
-    LineOfSight = 1
+    Visited = 0x1,
+    LineOfSight = 0x2,
+    JumpPoint = 0x4
 }
 
 /// <summary>
@@ -45,11 +47,11 @@ public enum FlowFieldDir : byte
     Deg338
 }
 
-public struct MapColliderInfo
+public struct TileColliderInfo
 {
     public byte CostField;
 
-    public int IntegrationField;
+    public float IntegrationField;
 
     public IntegrateFlag IntegrateInfo;
 

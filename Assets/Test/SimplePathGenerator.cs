@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEditor;
@@ -7,7 +8,7 @@ public class SimplePathGenerator : MonoBehaviour
 {
     public GameObject CostUIPrefab;
 
-    public bool CostField;
+    public bool UseCanonicalDij;
 
     public int2 Target;
 
@@ -32,14 +33,25 @@ public class SimplePathGenerator : MonoBehaviour
 
     private void Update ()
     {
-        if (Input.GetKeyDown (KeyCode.C)) CostField = !CostField;
+        if (Input.GetKeyDown (KeyCode.C)) UseCanonicalDij = !UseCanonicalDij;
         if (Input.GetKeyDown (KeyCode.G)) Generate ();
+        // Generate ();
     }
 
     public void Generate ()
     {
-        NavUtils.GenerateDijkstraIntegrationField (MapCollidersSingleton.Infos,
-            new int2 (GameSetting.MAP_WIDTH, GameSetting.MAP_HEIGHT), Target);
+        float startTime = DateTime.Now.Millisecond;
+
+        if (UseCanonicalDij)
+        {
+            NavUtils.GenerateCanonicalDijkstraIntegratField (MapColliderInfo.GameMap, Target);
+        }
+        else
+        {
+            NavUtils.GenerateDijkstraIntegratField (MapColliderInfo.GameMap, Target);
+        }
+        Debug.LogFormat ("Generate Cost Time : {0}", DateTime.Now.Millisecond - startTime);
+
 
         for (int y = 0; y < GameSetting.MAP_HEIGHT; y++)
         {
@@ -47,16 +59,15 @@ public class SimplePathGenerator : MonoBehaviour
             {
                 int idx = y * GameSetting.MAP_WIDTH + x;
 
-                int value = CostField ? MapCollidersSingleton.Infos[idx].CostField :
-                    MapCollidersSingleton.Infos[idx].IntegrationField;
+                float value = MapColliderInfo.GameMap.Infos[x, y].IntegrationField;
 
-                if (value == int.MaxValue)
+                if (value == float.MaxValue)
                 {
                     _texts[idx].text = "INF";
                 }
                 else
                 {
-                    _texts[idx].text = value.ToString ();
+                    _texts[idx].text = string.Format ("{0:F1}", value);
                 }
             }
         }

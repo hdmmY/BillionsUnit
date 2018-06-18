@@ -39,7 +39,7 @@ public class BillionUnitBootstrap : MonoBehaviour
 
         InitializeEntityPrefab (entityManager);
         InitializeTerrain (entityManager);
-        StartCoroutine (InitializeZoombies (entityManager));
+        // StartCoroutine (InitializeZoombies (entityManager));
         InitializeColliderInfomation (entityManager);
     }
 
@@ -153,8 +153,10 @@ public class BillionUnitBootstrap : MonoBehaviour
         int mapWidth = GameSetting.MAP_WIDTH;
         int mapHeight = GameSetting.MAP_HEIGHT;
 
-        MapCollidersSingleton.Infos = new MapColliderInfo[mapWidth * mapHeight];
-        MapCollidersSingleton.Length = mapWidth * mapHeight;
+        MapColliderInfo.GameMap = new MapColliderInfo ();
+        MapColliderInfo.GameMap.Infos = new TileColliderInfo[mapWidth, mapHeight];
+        MapColliderInfo.GameMap.MapHeight = mapHeight;
+        MapColliderInfo.GameMap.MapWidth = mapWidth;
     }
 
 
