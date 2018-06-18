@@ -26,16 +26,15 @@ public enum IntegrateFlag : byte
 /// <summary>
 /// Index to the <see cref = "MapColliderInfo.FlowFieldVector"/>
 /// </summary>
-public enum FlowFieldDir : byte
+public enum FlowFieldDir : int
 {
-    Deg0,
+    Deg0 = 0,
     Deg23,
     Deg45,
     Deg68,
     Deg90,
     Deg113,
     Deg135,
-    Deg128,
     Deg158,
     Deg180,
     Deg203,
@@ -44,7 +43,8 @@ public enum FlowFieldDir : byte
     Deg270,
     Deg293,
     Deg315,
-    Deg338
+    Deg338,
+    None,
 }
 
 public struct TileColliderInfo

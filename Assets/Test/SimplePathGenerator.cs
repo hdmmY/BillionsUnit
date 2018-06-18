@@ -35,7 +35,6 @@ public class SimplePathGenerator : MonoBehaviour
     {
         if (Input.GetKeyDown (KeyCode.C)) UseCanonicalDij = !UseCanonicalDij;
         if (Input.GetKeyDown (KeyCode.G)) Generate ();
-        // Generate ();
     }
 
     public void Generate ()
@@ -50,8 +49,9 @@ public class SimplePathGenerator : MonoBehaviour
         {
             NavUtils.GenerateDijkstraIntegratField (MapColliderInfo.GameMap, Target);
         }
-        Debug.LogFormat ("Generate Cost Time : {0}", DateTime.Now.Millisecond - startTime);
+        NavUtils.GenerateFlowField (MapColliderInfo.GameMap);
 
+        Debug.LogFormat ("Generate Cost Time : {0}", DateTime.Now.Millisecond - startTime);
 
         for (int y = 0; y < GameSetting.MAP_HEIGHT; y++)
         {
@@ -69,6 +69,31 @@ public class SimplePathGenerator : MonoBehaviour
                 {
                     _texts[idx].text = string.Format ("{0:F1}", value);
                 }
+            }
+        }
+    }
+
+    private void OnDrawGizmos ()
+    {
+        Gizmos.color = Color.black;
+
+        TileColliderInfo[, ] tiles = MapColliderInfo.GameMap.Infos;
+
+        int mapWidth = MapColliderInfo.GameMap.MapWidth;
+        int mapHeight = MapColliderInfo.GameMap.MapHeight;
+
+        Vector3 origin = new Vector3 (0, 0f, 0);
+
+        for (int y = 1; y < (mapHeight - 1); y++)
+        {
+            for (int x = 1; x < (mapWidth - 1); x++)
+            {
+                if (tiles[x, y].FlowField == FlowFieldDir.None) continue;
+
+                origin.x = x + 0.5f;
+                origin.z = y + 0.5f;
+                float2 dir = 0.5f * TileColliderInfo.FlowFieldVector[(int) tiles[x, y].FlowField];
+                Gizmos.DrawLine (origin, origin + new Vector3 (dir.x, 0, dir.y));
             }
         }
     }

@@ -70,9 +70,10 @@ public static class NavUtils
         if (MapColliderUtils.UnReachable (map, target.x, target.y)) return;
 
         float maxValue = float.MaxValue;
+
+        TileColliderInfo[, ] tiles = map.Infos;
         int mapWidth = map.MapWidth;
         int mapHeight = map.MapHeight;
-        TileColliderInfo[, ] tiles = map.Infos;
 
         for (int y = 0; y < mapHeight; y++)
         {
@@ -101,10 +102,84 @@ public static class NavUtils
         {
             var bestNode = openList.Dequeue ();
 
-            Debug.Log (bestNode.Node.ToString () + "  " + bestNode.Dir.ToString ());
-
             CanonicalOrdering (openList, map, bestNode.Node, bestNode.Dir,
                 tiles[bestNode.Node.x, bestNode.Node.y].IntegrationField);
+        }
+    }
+
+    public static void GenerateFlowField (MapColliderInfo map)
+    {
+        float[] neighboers = new float[8];
+        bool[] blocks = new bool[8];
+
+        TileColliderInfo[, ] info = map.Infos;
+
+        float maxValue = float.MaxValue;
+
+        for (int y = 1; y < (map.MapHeight - 1); y++)
+        {
+            for (int x = 1; x < (map.MapWidth - 1); x++)
+            {
+                if (MapColliderUtils.UnReachable (map, x, y))
+                {
+                    info[x, y].FlowField = FlowFieldDir.None;
+                    continue;
+                }
+
+                blocks[0] = MapColliderUtils.UnReachable (map, x - 1, y + 1);
+                blocks[1] = MapColliderUtils.UnReachable (map, x    , y + 1);
+                blocks[2] = MapColliderUtils.UnReachable (map, x + 1, y + 1);
+                blocks[3] = MapColliderUtils.UnReachable (map, x - 1, y    );
+                blocks[4] = MapColliderUtils.UnReachable (map, x + 1, y    );
+                blocks[5] = MapColliderUtils.UnReachable (map, x - 1, y - 1);
+                blocks[6] = MapColliderUtils.UnReachable (map, x    , y - 1);
+                blocks[7] = MapColliderUtils.UnReachable (map, x + 1, y - 1);
+
+
+                neighboers[0] = (blocks[3] && blocks[1]) ? maxValue : info[x - 1, y + 1].IntegrationField;
+                neighboers[1] = (blocks[1]             ) ? maxValue : info[x    , y + 1].IntegrationField;
+                neighboers[2] = (blocks[1] && blocks[4]) ? maxValue : info[x + 1, y + 1].IntegrationField;
+                neighboers[3] = (blocks[3]             ) ? maxValue : info[x - 1, y    ].IntegrationField;
+                neighboers[4] = (blocks[4]             ) ? maxValue : info[x + 1, y    ].IntegrationField;
+                neighboers[5] = (blocks[3] && blocks[6]) ? maxValue : info[x - 1, y - 1].IntegrationField;
+                neighboers[6] = (blocks[6]             ) ? maxValue : info[x    , y - 1].IntegrationField;
+                neighboers[7] = (blocks[4] && blocks[6]) ? maxValue : info[x + 1, y - 1].IntegrationField;
+
+                int minIdx = 0;
+
+                for (int i = 1; i < 8; i++)
+                {
+                    if (neighboers[i] < neighboers[minIdx]) minIdx = i;
+                }
+
+                switch (minIdx)
+                {
+                    case 0:
+                        info[x, y].FlowField = FlowFieldDir.Deg135;
+                        break;
+                    case 1:
+                        info[x, y].FlowField = FlowFieldDir.Deg90;
+                        break;
+                    case 2:
+                        info[x, y].FlowField = FlowFieldDir.Deg45;
+                        break;
+                    case 3:
+                        info[x, y].FlowField = FlowFieldDir.Deg180;
+                        break;
+                    case 4:
+                        info[x, y].FlowField = FlowFieldDir.Deg0;
+                        break;
+                    case 5:
+                        info[x, y].FlowField = FlowFieldDir.Deg225;
+                        break;
+                    case 6:
+                        info[x, y].FlowField = FlowFieldDir.Deg270;
+                        break;
+                    case 7:
+                        info[x, y].FlowField = FlowFieldDir.Deg315;
+                        break;
+                }
+            }
         }
     }
 
@@ -168,7 +243,6 @@ public static class NavUtils
                 }
                 map.Infos[start.x, start.y].IntegrationField = math.min (
                     map.Infos[start.x, start.y].IntegrationField, cost);
-                if (start.x == 14 && start.y == 14) Debug.Log (cost);
                 openList.Enqueue (new PathNode (start, newdir), cost);
                 return;
             }
@@ -194,7 +268,6 @@ public static class NavUtils
             {
                 if (map.Infos[start.x, start.y].IntegrationField > cost)
                 {
-                    Debug.Log (start);
                     map.Infos[start.x, start.y].IntegrationField = cost;
                 }
                 else

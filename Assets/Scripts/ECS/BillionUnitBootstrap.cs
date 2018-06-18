@@ -157,6 +157,14 @@ public class BillionUnitBootstrap : MonoBehaviour
         MapColliderInfo.GameMap.Infos = new TileColliderInfo[mapWidth, mapHeight];
         MapColliderInfo.GameMap.MapHeight = mapHeight;
         MapColliderInfo.GameMap.MapWidth = mapWidth;
+
+        for (int y = 0; y < mapHeight; y++)
+        {
+            for (int x = 0; x < mapWidth; x++)
+            {
+                MapColliderInfo.GameMap.Infos[x, y].FlowField = FlowFieldDir.None;
+            }
+        }
     }
 
 
