@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 23758171070188644}
   - component: {fileID: 114351152657188146}
   - component: {fileID: 114147454075776544}
-  - component: {fileID: 114765771104983970}
+  - component: {fileID: 114920648329268260}
   - component: {fileID: 114614205709913086}
   - component: {fileID: 114839728492774622}
   - component: {fileID: 114620728918133744}
@@ -152,24 +152,6 @@ MonoBehaviour:
       z: 0.5
     BoundingSphereRadius: 1
     CullStatus: 0
---- !u!114 &114765771104983970
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1656093425806030}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea1abe08d8baf6d438e9ee55536cf4fb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SerializedData:
-    Value:
-      x: 0
-      y: 0
-    Offset:
-      x: 0
-      y: 0
 --- !u!114 &114839728492774622
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -183,3 +165,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_SerializedData:
     TerrainType: 0
+--- !u!114 &114920648329268260
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1656093425806030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97a4d3ab59db59c48bd76f63540da990, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SerializedData:
+    Value:
+      x: 0
+      y: 0
+    Offset:
+      x: 0
+      y: 0

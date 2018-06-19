@@ -10,7 +10,7 @@ public static class MapColliderUtils
         if (x >= map.MapWidth || x < 0) return;
         if (y >= map.MapHeight || y < 0) return;
 
-        map.Infos[x, y].CostField = value;
+        map.CostField[x, y] = value;
     }
 
     [MethodImpl (MethodImplOptions.AggressiveInlining)]
@@ -19,7 +19,7 @@ public static class MapColliderUtils
         if (x >= map.MapWidth || x < 0) return true;
         if (y >= map.MapHeight || y < 0) return true;
 
-        return map.Infos[x, y].CostField == 0xff;
+        return map.CostField[x, y] == 0xff;
     }
 
     [MethodImpl (MethodImplOptions.AggressiveInlining)]
@@ -34,6 +34,6 @@ public static class MapColliderUtils
         if (x >= map.MapWidth || x < 0) return false;
         if (y >= map.MapHeight || y < 0) return false;
 
-        return map.Infos[x, y].CostField == 0xff;
+        return map.CostField[x, y] == 0xff;
     }
 }

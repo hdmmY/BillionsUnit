@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 212466574147608726}
   - component: {fileID: 114222090020508052}
   - component: {fileID: 114667295699768998}
-  - component: {fileID: 114293829312679116}
+  - component: {fileID: 114316548163810546}
   - component: {fileID: 114190147704335810}
   - component: {fileID: 114982960599602124}
   - component: {fileID: 114388080827432588}
@@ -75,7 +75,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AnimationData: {fileID: 11400000, guid: a263434f4fd4ecf41b999e7116143a4e, type: 2}
---- !u!114 &114293829312679116
+--- !u!114 &114316548163810546
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -83,7 +83,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1785311155150030}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea1abe08d8baf6d438e9ee55536cf4fb, type: 3}
+  m_Script: {fileID: 11500000, guid: 97a4d3ab59db59c48bd76f63540da990, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_SerializedData:
@@ -107,7 +107,7 @@ MonoBehaviour:
   m_SerializedData:
     AnimNumber: 10
     FramePerClip: 17
-    FrameDuration: 0.015
+    FrameDuration: 0.06
     StartAngle: 135
     DeltAngle: -18
 --- !u!114 &114667295699768998
@@ -157,7 +157,7 @@ MonoBehaviour:
       y: 0
     Mass: 0
     MaxForce: 0
-    MaxVelocity: 2
+    MaxVelocity: 0.5
 --- !u!114 &114982960599602124
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -16,7 +16,7 @@ public class UnitCommandSystem : ComponentSystem
 
         public ComponentDataArray<Terrain> Terrains;
 
-        public ComponentDataArray<UnitPosition> Positions;
+        public ComponentDataArray<Position2D> Positions;
     }
 
     public struct NavUnits
@@ -63,13 +63,13 @@ public class UnitCommandSystem : ComponentSystem
             MapColliderUtils.SetCostValue (MapColliderInfo.GameMap, x, y, 255);
 
             // Instantiate a barrier on (x, y)
-            var barrierEntity = EntityManager.Instantiate (EntityPrefabContainer.UI_Terrain01);
-            var drawOffset = EntityManager.GetComponentData<UnitPosition> (barrierEntity).Offset;
+            var barrierEntity = EntityManager.Instantiate (EntityPrefabContainer.Barrier);
+            var drawOffset = EntityManager.GetComponentData<Position2D> (barrierEntity).Offset;
             EntityManager.SetComponentData (barrierEntity, new Terrain
             {
                 TerrainType = TerrainType.Barrier
             });
-            EntityManager.SetComponentData (barrierEntity, new UnitPosition
+            EntityManager.SetComponentData (barrierEntity, new Position2D
             {
                 Value = new float2 (x, y),
                     Offset = drawOffset
@@ -109,7 +109,7 @@ public class UnitCommandSystem : ComponentSystem
         if (Input.GetMouseButtonDown (2))
         {
             pathController.Target = new int2 (x, y);
-            pathController.Generate();
+            pathController.Generate ();
         }
 
 
@@ -119,7 +119,8 @@ public class UnitCommandSystem : ComponentSystem
             for (int i = 0; i < _navUnits.Length; i++)
             {
                 var oldNav = _navUnits.NavInfos[i];
-                oldNav.NavMoving = (byte) ~oldNav.NavMoving;
+                if (oldNav.NavMoving) oldNav.StopNavMoving ();
+                else oldNav.StartNavMoving ();
                 oldNav.Target = pathController.Target;
                 EntityManager.SetComponentData (_navUnits.Entities[i], oldNav);
             }

@@ -14,19 +14,19 @@ public static class NavUtils
     {
         float maxValue = float.MaxValue;
 
-        TileColliderInfo[, ] tiles = map.Infos;
         int mapWidth = map.MapWidth;
         int mapHeigth = map.MapHeight;
+        byte[, ] costField = map.CostField;
+        float[, ] inteField = map.IntegrationField;
 
         for (int y = 0; y < mapHeigth; y++)
         {
             for (int x = 0; x < mapWidth; x++)
             {
-                tiles[x, y].IntegrationField = maxValue;
+                inteField[x, y] = maxValue;
             }
         }
-
-        tiles[target.x, target.y].IntegrationField = 0;
+        inteField[target.x, target.y] = 0;
 
         Queue<int2> openList = new Queue<int2> (mapWidth * mapHeigth / 10);
         openList.Enqueue (target);
@@ -51,11 +51,11 @@ public static class NavUtils
                 neighborId = neighborIds[i];
                 if (MapColliderUtils.UnReachable (map, neighborId.x, neighborId.y)) continue;
 
-                endCost = tiles[cur.x, cur.y].IntegrationField + tiles[neighborId.x, neighborId.y].CostField + 1;
-                if (endCost < tiles[neighborId.x, neighborId.y].IntegrationField)
+                endCost = inteField[cur.x, cur.y] + costField[neighborId.x, neighborId.y] + 1;
+                if (endCost < inteField[neighborId.x, neighborId.y])
                 {
                     if (!openList.Contains (neighborId)) openList.Enqueue (neighborId);
-                    tiles[neighborId.x, neighborId.y].IntegrationField = endCost;
+                    inteField[neighborId.x, neighborId.y] = endCost;
                 }
             }
         }
@@ -71,24 +71,26 @@ public static class NavUtils
 
         float maxValue = float.MaxValue;
 
-        TileColliderInfo[, ] tiles = map.Infos;
         int mapWidth = map.MapWidth;
         int mapHeight = map.MapHeight;
+        byte[, ] costField = map.CostField;
+        float[, ] inteField = map.IntegrationField;
+        IntegrateFlag[, ] inteInfos = map.IntegrateInfos;
 
         for (int y = 0; y < mapHeight; y++)
         {
             for (int x = 0; x < mapWidth; x++)
             {
-                tiles[x, y].IntegrationField = maxValue;
-                tiles[x, y].IntegrateInfo &= ~IntegrateFlag.Visited; // Init all field visited flag to false
+                inteField[x, y] = maxValue;
+                inteInfos[x, y] &= ~IntegrateFlag.Visited; // Init all field visited flag to false
             }
         }
 
-        FastPriorityQueue<PathNode> openList = new FastPriorityQueue<PathNode> (tiles.Length / 10);
+        FastPriorityQueue<PathNode> openList = new FastPriorityQueue<PathNode> (mapWidth * mapHeight / 10);
 
         // Origin 
-        tiles[target.x, target.y].IntegrationField = 0;
-        tiles[target.x, target.y].IntegrateInfo |= IntegrateFlag.Visited;
+        inteField[target.x, target.y] = 0;
+        inteInfos[target.x, target.y] |= IntegrateFlag.Visited;
         SetOriginOpenListForCanonicalDijkstra (openList, map, target, new int2 (1, 0));
         SetOriginOpenListForCanonicalDijkstra (openList, map, target, new int2 (1, 1));
         SetOriginOpenListForCanonicalDijkstra (openList, map, target, new int2 (0, 1));
@@ -103,7 +105,7 @@ public static class NavUtils
             var bestNode = openList.Dequeue ();
 
             CanonicalOrdering (openList, map, bestNode.Node, bestNode.Dir,
-                tiles[bestNode.Node.x, bestNode.Node.y].IntegrationField);
+                inteField[bestNode.Node.x, bestNode.Node.y]);
         }
     }
 
@@ -112,7 +114,8 @@ public static class NavUtils
         float[] neighboers = new float[8];
         bool[] blocks = new bool[8];
 
-        TileColliderInfo[, ] info = map.Infos;
+        float[, ] inteField = map.IntegrationField;
+        FlowFieldDir[, ] flowField = map.FlowField;
 
         float maxValue = float.MaxValue;
 
@@ -122,28 +125,28 @@ public static class NavUtils
             {
                 if (MapColliderUtils.UnReachable (map, x, y))
                 {
-                    info[x, y].FlowField = FlowFieldDir.None;
+                    flowField[x, y] = FlowFieldDir.None;
                     continue;
                 }
 
                 blocks[0] = MapColliderUtils.UnReachable (map, x - 1, y + 1);
-                blocks[1] = MapColliderUtils.UnReachable (map, x    , y + 1);
+                blocks[1] = MapColliderUtils.UnReachable (map, x, y + 1);
                 blocks[2] = MapColliderUtils.UnReachable (map, x + 1, y + 1);
-                blocks[3] = MapColliderUtils.UnReachable (map, x - 1, y    );
-                blocks[4] = MapColliderUtils.UnReachable (map, x + 1, y    );
+                blocks[3] = MapColliderUtils.UnReachable (map, x - 1, y);
+                blocks[4] = MapColliderUtils.UnReachable (map, x + 1, y);
                 blocks[5] = MapColliderUtils.UnReachable (map, x - 1, y - 1);
-                blocks[6] = MapColliderUtils.UnReachable (map, x    , y - 1);
+                blocks[6] = MapColliderUtils.UnReachable (map, x, y - 1);
                 blocks[7] = MapColliderUtils.UnReachable (map, x + 1, y - 1);
 
 
-                neighboers[0] = (blocks[3] && blocks[1]) ? maxValue : info[x - 1, y + 1].IntegrationField;
-                neighboers[1] = (blocks[1]             ) ? maxValue : info[x    , y + 1].IntegrationField;
-                neighboers[2] = (blocks[1] && blocks[4]) ? maxValue : info[x + 1, y + 1].IntegrationField;
-                neighboers[3] = (blocks[3]             ) ? maxValue : info[x - 1, y    ].IntegrationField;
-                neighboers[4] = (blocks[4]             ) ? maxValue : info[x + 1, y    ].IntegrationField;
-                neighboers[5] = (blocks[3] && blocks[6]) ? maxValue : info[x - 1, y - 1].IntegrationField;
-                neighboers[6] = (blocks[6]             ) ? maxValue : info[x    , y - 1].IntegrationField;
-                neighboers[7] = (blocks[4] && blocks[6]) ? maxValue : info[x + 1, y - 1].IntegrationField;
+                neighboers[0] = (blocks[3] && blocks[1]) ? maxValue : inteField[x - 1, y + 1];
+                neighboers[1] = (blocks[1]) ? maxValue : inteField[x, y + 1];
+                neighboers[2] = (blocks[1] && blocks[4]) ? maxValue : inteField[x + 1, y + 1];
+                neighboers[3] = (blocks[3]) ? maxValue : inteField[x - 1, y];
+                neighboers[4] = (blocks[4]) ? maxValue : inteField[x + 1, y];
+                neighboers[5] = (blocks[3] && blocks[6]) ? maxValue : inteField[x - 1, y - 1];
+                neighboers[6] = (blocks[6]) ? maxValue : inteField[x, y - 1];
+                neighboers[7] = (blocks[4] && blocks[6]) ? maxValue : inteField[x + 1, y - 1];
 
                 int minIdx = 0;
 
@@ -155,28 +158,28 @@ public static class NavUtils
                 switch (minIdx)
                 {
                     case 0:
-                        info[x, y].FlowField = FlowFieldDir.Deg135;
+                        flowField[x, y] = FlowFieldDir.Deg135;
                         break;
                     case 1:
-                        info[x, y].FlowField = FlowFieldDir.Deg90;
+                        flowField[x, y] = FlowFieldDir.Deg90;
                         break;
                     case 2:
-                        info[x, y].FlowField = FlowFieldDir.Deg45;
+                        flowField[x, y] = FlowFieldDir.Deg45;
                         break;
                     case 3:
-                        info[x, y].FlowField = FlowFieldDir.Deg180;
+                        flowField[x, y] = FlowFieldDir.Deg180;
                         break;
                     case 4:
-                        info[x, y].FlowField = FlowFieldDir.Deg0;
+                        flowField[x, y] = FlowFieldDir.Deg0;
                         break;
                     case 5:
-                        info[x, y].FlowField = FlowFieldDir.Deg225;
+                        flowField[x, y] = FlowFieldDir.Deg225;
                         break;
                     case 6:
-                        info[x, y].FlowField = FlowFieldDir.Deg270;
+                        flowField[x, y] = FlowFieldDir.Deg270;
                         break;
                     case 7:
-                        info[x, y].FlowField = FlowFieldDir.Deg315;
+                        flowField[x, y] = FlowFieldDir.Deg315;
                         break;
                 }
             }
@@ -220,13 +223,13 @@ public static class NavUtils
 
         while (!MapColliderUtils.UnReachable (map, start.x, start.y))
         {
-            IntegrateFlag integrateFlag = map.Infos[start.x, start.y].IntegrateInfo;
+            IntegrateFlag integrateFlag = map.IntegrateInfos[start.x, start.y];
 
             if (integrateFlag.HasFlag (IntegrateFlag.Visited))
             {
-                if (map.Infos[start.x, start.y].IntegrationField > cost)
+                if (map.IntegrationField[start.x, start.y] > cost)
                 {
-                    map.Infos[start.x, start.y].IntegrationField = cost;
+                    map.IntegrationField[start.x, start.y] = cost;
                 }
                 else
                 {
@@ -239,17 +242,16 @@ public static class NavUtils
             {
                 if (integrateFlag.HasFlag (IntegrateFlag.Visited))
                 {
-                    map.Infos[start.x, start.y].IntegrateInfo &= ~IntegrateFlag.Visited;
+                    map.IntegrateInfos[start.x, start.y] &= ~IntegrateFlag.Visited;
                 }
-                map.Infos[start.x, start.y].IntegrationField = math.min (
-                    map.Infos[start.x, start.y].IntegrationField, cost);
+                map.IntegrationField[start.x, start.y] = math.min (map.IntegrationField[start.x, start.y], cost);
                 openList.Enqueue (new PathNode (start, newdir), cost);
                 return;
             }
             else
             {
-                map.Infos[start.x, start.y].IntegrateInfo |= IntegrateFlag.Visited;
-                map.Infos[start.x, start.y].IntegrationField = cost;
+                map.IntegrateInfos[start.x, start.y] |= IntegrateFlag.Visited;
+                map.IntegrationField[start.x, start.y] = cost;
                 start += dir;
                 cost += 1;
             }
@@ -262,13 +264,13 @@ public static class NavUtils
 
         while (!MapColliderUtils.UnReachable (map, start.x, start.y))
         {
-            IntegrateFlag integrateFlag = map.Infos[start.x, start.y].IntegrateInfo;
+            IntegrateFlag integrateFlag = map.IntegrateInfos[start.x, start.y];
 
             if (integrateFlag.HasFlag (IntegrateFlag.Visited))
             {
-                if (map.Infos[start.x, start.y].IntegrationField > cost)
+                if (map.IntegrationField[start.x, start.y] > cost)
                 {
-                    map.Infos[start.x, start.y].IntegrationField = cost;
+                    map.IntegrationField[start.x, start.y] = cost;
                 }
                 else
                 {
@@ -277,8 +279,8 @@ public static class NavUtils
             }
             else
             {
-                map.Infos[start.x, start.y].IntegrateInfo |= IntegrateFlag.Visited;
-                map.Infos[start.x, start.y].IntegrationField = cost;
+                map.IntegrateInfos[start.x, start.y] |= IntegrateFlag.Visited;
+                map.IntegrationField[start.x, start.y] = cost;
             }
 
             MoveCardinal (openList, map, start, new int2 (dir.x, 0), cost);
@@ -317,7 +319,7 @@ public static class NavUtils
             cost = 1.5f;
         }
 
-        map.Infos[next.x, next.y].IntegrationField = cost;
+        map.IntegrationField[next.x, next.y] = cost;
         openList.Enqueue (new PathNode (next, dir), cost);
     }
 
@@ -329,8 +331,6 @@ public static class NavUtils
     {
         int2 parent = child - dir;
         int2 falseReval = new int2 (0, 0);
-
-        TileColliderInfo[, ] tiles = map.Infos;
 
         if (dir.x == 0 && dir.y != 0)
         {

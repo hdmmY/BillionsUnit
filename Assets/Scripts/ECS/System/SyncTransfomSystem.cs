@@ -8,7 +8,7 @@ public class SyncTransformSystem : ComponentSystem
 {
     public struct InitialTransformData
     {
-        [ReadOnly] public ComponentDataArray<UnitPosition> Positions;
+        [ReadOnly] public ComponentDataArray<Position2D> Positions;
 
         // [ReadOnly] public ComponentDataArray<Heading2D> Headings;
 

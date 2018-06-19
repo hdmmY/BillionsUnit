@@ -1,14 +1,14 @@
 using System;
+using System.Runtime.CompilerServices;
 using Unity.Entities;
 using Unity.Mathematics;
 
 [Serializable]
 public struct NavInfo : IComponentData
 {
-    /// <summary>
-    /// bool -- 0 for not moving, 1 for moving
-    /// </summary>
-    public byte NavMoving;
+    public bool NavMoving => _navMoving == 0x1;
+
+    private byte _navMoving;
 
     public float2 Velocity;
 
@@ -19,6 +19,12 @@ public struct NavInfo : IComponentData
     public float MaxForce;
 
     public float MaxVelocity;
+
+    [MethodImpl (MethodImplOptions.AggressiveInlining)]
+    public void StartNavMoving () => _navMoving = 0x1;
+
+    [MethodImpl (MethodImplOptions.AggressiveInlining)]
+    public void StopNavMoving () => _navMoving = 0x0;
 }
 
 public class NavInfoComponent : ComponentDataWrapper<NavInfo> { }

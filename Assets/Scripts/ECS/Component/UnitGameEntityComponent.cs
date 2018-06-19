@@ -44,7 +44,7 @@ public class UnitGameEntityComponent : GameObjectEntity
             UnitGameEntityArch = entityManager.CreateArchetype (
                 typeof (Transform), typeof (SpriteRenderer),
                 typeof (SimpleSpriteAnimCollectionComponent), typeof (UnitGameEntityComponent),
-                typeof (UnitPosition), typeof (Heading2D), typeof (UnitRotation),
+                typeof (Position2D), typeof (Heading2D), typeof (UnitRotation),
                 typeof (SimpleAnimInfomation), typeof (SelfSimpleSpriteAnimData),
                 typeof (NavInfo));
         }
@@ -85,8 +85,8 @@ public class UnitGameEntityComponent : GameObjectEntity
             gameObject.GetComponent<SimpleSpriteAnimCollectionComponent> ()
         });
 
-        entityManager.SetComponentData (entity, gameObject.GetComponent<UnitPositionComponent> ().Value);
-        Destroy (gameObject.GetComponent<UnitPositionComponent> ());
+        entityManager.SetComponentData (entity, gameObject.GetComponent<Position2DComponent> ().Value);
+        Destroy (gameObject.GetComponent<Position2DComponent> ());
 
         entityManager.SetComponentData (entity, gameObject.GetComponent<Heading2DComponent> ().Value);
         Destroy (gameObject.GetComponent<Heading2DComponent> ());

@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 23663939737446280}
   - component: {fileID: 114858005407745222}
   - component: {fileID: 114778942434051046}
-  - component: {fileID: 114150632836750212}
+  - component: {fileID: 114406299208718574}
   - component: {fileID: 114347380005322714}
   - component: {fileID: 114449401966930962}
   - component: {fileID: 114852708750061920}
@@ -89,24 +89,6 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1339339518208766}
   m_Mesh: {fileID: 4300000, guid: a634e3d1b9a691a4893e14f6bf67a552, type: 2}
---- !u!114 &114150632836750212
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1339339518208766}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea1abe08d8baf6d438e9ee55536cf4fb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SerializedData:
-    Value:
-      x: 0
-      y: 0
-    Offset:
-      x: 0.5
-      y: -0.2
 --- !u!114 &114347380005322714
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -122,6 +104,24 @@ MonoBehaviour:
     Value:
       x: -1
       y: 1
+--- !u!114 &114406299208718574
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1339339518208766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97a4d3ab59db59c48bd76f63540da990, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SerializedData:
+    Value:
+      x: 0
+      y: 0
+    Offset:
+      x: 0.5
+      y: -0.2
 --- !u!114 &114449401966930962
 MonoBehaviour:
   m_ObjectHideFlags: 1

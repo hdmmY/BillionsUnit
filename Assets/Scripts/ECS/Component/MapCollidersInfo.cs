@@ -8,11 +8,30 @@ public class MapColliderInfo
 {
     public static MapColliderInfo GameMap;
 
-    public TileColliderInfo[, ] Infos;
+    public MapColliderInfo (int width, int height)
+    {
+        if (width <= 0 || height <= 0) return;
 
-    public int MapWidth;
+        MapWidth = width;
+        MapHeight = height;
 
-    public int MapHeight;
+        CostField = new byte[height, width];
+        IntegrationField = new float[height, width];
+        IntegrateInfos = new IntegrateFlag[height, width];
+        FlowField = new FlowFieldDir[height, width];
+    }
+
+    public byte[, ] CostField;
+
+    public float[, ] IntegrationField;
+
+    public IntegrateFlag[, ] IntegrateInfos;
+
+    public FlowFieldDir[, ] FlowField;
+
+    public readonly int MapWidth;
+
+    public readonly int MapHeight;
 }
 
 [Flags]
@@ -24,7 +43,7 @@ public enum IntegrateFlag : byte
 }
 
 /// <summary>
-/// Index to the <see cref = "MapColliderInfo.FlowFieldVector"/>
+/// Index to the <see cref = "FlowFieldLookUp.Table"/>
 /// </summary>
 public enum FlowFieldDir : int
 {
@@ -47,23 +66,13 @@ public enum FlowFieldDir : int
     None,
 }
 
-public struct TileColliderInfo
+
+/// <summary>
+/// Precomputed flow field direction vector
+/// </summary>
+public static class FlowFieldVectorLookUp
 {
-    public byte CostField;
-
-    public float IntegrationField;
-
-    public IntegrateFlag IntegrateInfo;
-
-    /// <summary>
-    /// Indexer to the flow field direction vector
-    /// </summary>
-    public FlowFieldDir FlowField;
-
-    /// <summary>
-    /// Precomputed flow field direction vector
-    /// </summary>
-    public readonly static float2[] FlowFieldVector = new float2[]
+    public static readonly float2[] Table = new float2[]
     {
         new float2 (1f, 0f),
         new float2 (0.9238795f, 0.3826835f),

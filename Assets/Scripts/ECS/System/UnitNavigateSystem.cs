@@ -1,54 +1,68 @@
 ﻿using Unity.Entities;
 using Unity.Jobs;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class UnitNavigateSystem : ComponentSystem
+public class UnitNavigateSystem : JobComponentSystem
 {
     public struct NavUnits
     {
         public int Length;
 
-        public ComponentDataArray<UnitPosition> Positions;
+        [ReadOnly]
+        public ComponentDataArray<Position2D> Positions;
 
         public ComponentDataArray<NavInfo> NavInfos;
-
-        public ComponentDataArray<UnitRotation> Rotations;
     }
 
     [Inject]
     private NavUnits _units;
 
-
-    protected override void OnUpdate ()
+    [ComputeJobOptimization]
+    private struct UnitNavigation : IJobParallelFor
     {
-        TileColliderInfo[, ] tiles = MapColliderInfo.GameMap.Infos;
+        [ReadOnly]
+        public ComponentDataArray<Position2D> Positions;
 
-        float deltaTime = Time.deltaTime;
+        public ComponentDataArray<NavInfo> NavInfos;
 
-        for (int i = 0; i < _units.Length; i++)
+        [ReadOnly]
+        [DeallocateOnJobCompletion]
+        [NativeDisableParallelForRestriction]
+        public NativeArray<FlowFieldDir> FlowField;
+
+        [ReadOnly]
+        [DeallocateOnJobCompletion]
+        [NativeDisableParallelForRestriction]
+        public NativeArray<float2> FlowFieldLookUpTable;
+
+        public int Width;
+
+        public int Height;
+
+        public void Execute (int index)
         {
-            if (_units.NavInfos[i].NavMoving == 0) continue;
-            if (math.lengthSquared (_units.NavInfos[i].Target - _units.Positions[i].Value) < 0.5f) continue;
+            var oldNavInfo = NavInfos[index];
 
-            float2 pos = _units.Positions[i].Value;
-            int2 floorPos = (int2) pos;
+            if (!oldNavInfo.NavMoving) return;
+            if (math.lengthSquared (oldNavInfo.Target - Positions[index].Value) < 0.5f) return;
+
+            float2 pos = Positions[index].Value;
+            int2 floorPos = new int2 (math.floor (pos));
             float2 fracPos = math.frac (pos);
 
-            // if (MapColliderUtils.UnReachable (MapColliderInfo.GameMap, floorPos.x, floorPos.y)) continue;
-
-            float2 f00 = TileColliderInfo.FlowFieldVector[(int) tiles[floorPos.x, floorPos.y].FlowField];
-            float2 f01 = TileColliderInfo.FlowFieldVector[(int) tiles[floorPos.x, floorPos.y + 1].FlowField];
-            float2 f10 = TileColliderInfo.FlowFieldVector[(int) tiles[floorPos.x + 1, floorPos.y].FlowField];
-            float2 f11 = TileColliderInfo.FlowFieldVector[(int) tiles[floorPos.x + 1, floorPos.y + 1].FlowField];
+            float2 f00, f01, f10, f11;
+            f00 = FlowFieldLookUpTable[(int) FlowField[floorPos.x + floorPos.y * Width]];
+            f10 = FlowFieldLookUpTable[(int) FlowField[floorPos.x + 1 + floorPos.y * Width]];
+            f01 = FlowFieldLookUpTable[(int) FlowField[floorPos.x + (floorPos.y + 1) * Width]];
+            f11 = FlowFieldLookUpTable[(int) FlowField[floorPos.x + 1 + (floorPos.y + 1) * Width]];
 
             float2 top = f00 * (1 - fracPos.x) + f10 * fracPos.x;
             float2 bottom = f01 * (1 - fracPos.x) + f11 * fracPos.x;
 
             float2 dir = top * (1 - fracPos.y) + bottom * fracPos.y;
-
-
             if (float.IsNaN (dir.x) || float.IsNaN (dir.y))
             {
                 dir = new float2 (0, 0);
@@ -58,15 +72,41 @@ public class UnitNavigateSystem : ComponentSystem
                 dir = math.normalize (dir);
             }
 
-            UnitPosition oldPos = _units.Positions[i];
-            oldPos.Value += dir * _units.NavInfos[i].MaxVelocity * deltaTime;
-            _units.Positions[i] = oldPos;
+            oldNavInfo.Velocity = dir * oldNavInfo.MaxVelocity;
+            NavInfos[index] = oldNavInfo;
+        }
+    }
 
-            if (dir.x != 0 || dir.y != 0)
+
+    protected override JobHandle OnUpdate (JobHandle inputDep)
+    {
+        int width = MapColliderInfo.GameMap.MapWidth;
+        int height = MapColliderInfo.GameMap.MapHeight;
+
+        NativeArray<FlowFieldDir> flowField = new NativeArray<FlowFieldDir> (width * height, Allocator.TempJob);
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
             {
-                _units.Rotations[i] = new UnitRotation { Angle = MathUtils.DirectionToAngle (dir) };
+                flowField[y * width + x] = MapColliderInfo.GameMap.FlowField[x, y];
             }
         }
+
+        NativeArray<float2> flowFieldLookUpTable = new NativeArray<float2> (FlowFieldVectorLookUp.Table, Allocator.TempJob);
+
+        var unitNavgateJob = new UnitNavigation ()
+        {
+            Positions = _units.Positions,
+            NavInfos = _units.NavInfos,
+            FlowField = flowField,
+            FlowFieldLookUpTable = flowFieldLookUpTable,
+            Width = width,
+            Height = height
+        };
+
+        inputDep = unitNavgateJob.Schedule (_units.Length, 64, inputDep);
+
+        return inputDep;
     }
 
 }

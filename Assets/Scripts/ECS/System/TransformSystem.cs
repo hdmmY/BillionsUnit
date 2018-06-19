@@ -12,7 +12,7 @@ public class TransformSystem : JobComponentSystem
     struct TransGroup
     {
         public ComponentDataArray<TransformMatrix> Matrixs;
-        [ReadOnly] public ComponentDataArray<UnitPosition> Positioins;
+        [ReadOnly] public ComponentDataArray<Position2D> Positioins;
         [ReadOnly] public SubtractiveComponent<Heading2D> Rotations;
         [ReadOnly] public SubtractiveComponent<StaticTransform> StaticTransMarks;
         public int Length;
@@ -23,7 +23,7 @@ public class TransformSystem : JobComponentSystem
     struct RotTransGroup
     {
         public ComponentDataArray<TransformMatrix> Matrixs;
-        [ReadOnly] public ComponentDataArray<UnitPosition> Positioins;
+        [ReadOnly] public ComponentDataArray<Position2D> Positioins;
         [ReadOnly] public ComponentDataArray<Heading2D> Rotations;
         [ReadOnly] public SubtractiveComponent<StaticTransform> StaticTransMarks;
         public int Length;
@@ -35,7 +35,7 @@ public class TransformSystem : JobComponentSystem
     struct TransToMatrix : IJobParallelFor
     {
         public ComponentDataArray<TransformMatrix> matrixs;
-        [ReadOnly] public ComponentDataArray<UnitPosition> positions;
+        [ReadOnly] public ComponentDataArray<Position2D> positions;
 
         public void Execute (int idx)
         {
@@ -51,7 +51,7 @@ public class TransformSystem : JobComponentSystem
     struct RotTransToMatrix : IJobParallelFor
     {
         public ComponentDataArray<TransformMatrix> matrixs;
-        [ReadOnly] public ComponentDataArray<UnitPosition> positions;
+        [ReadOnly] public ComponentDataArray<Position2D> positions;
         [ReadOnly] public ComponentDataArray<Heading2D> rotations;
 
         public void Execute (int idx)

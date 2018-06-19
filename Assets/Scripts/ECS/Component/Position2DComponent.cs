@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [Serializable]
-public struct UnitPosition : IComponentData
+public struct Position2D : IComponentData
 {
     // Offset is to draw the picture, the acture position of a unit is Value
 
@@ -14,4 +14,4 @@ public struct UnitPosition : IComponentData
     public float2 DrawValue => Value + Offset;
 }
 
-public class UnitPositionComponent : ComponentDataWrapper<UnitPosition> { }
+public class Position2DComponent : ComponentDataWrapper<Position2D> { }
