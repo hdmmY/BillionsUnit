@@ -119,9 +119,9 @@ public static class NavUtils
 
         float maxValue = float.MaxValue;
 
-        for (int y = 1; y < (map.MapHeight - 1); y++)
+        for (int y = 0; y < (map.MapHeight); y++)
         {
-            for (int x = 1; x < (map.MapWidth - 1); x++)
+            for (int x = 0; x < (map.MapWidth); x++)
             {
                 if (MapColliderUtils.UnReachable (map, x, y))
                 {
@@ -139,14 +139,14 @@ public static class NavUtils
                 blocks[7] = MapColliderUtils.UnReachable (map, x + 1, y - 1);
 
 
-                neighboers[0] = (blocks[3] && blocks[1]) ? maxValue : inteField[x - 1, y + 1];
+                neighboers[0] = (blocks[0] || (blocks[3] && blocks[1])) ? maxValue : inteField[x - 1, y + 1];
                 neighboers[1] = (blocks[1]) ? maxValue : inteField[x, y + 1];
-                neighboers[2] = (blocks[1] && blocks[4]) ? maxValue : inteField[x + 1, y + 1];
+                neighboers[2] = (blocks[2] || (blocks[1] && blocks[4])) ? maxValue : inteField[x + 1, y + 1];
                 neighboers[3] = (blocks[3]) ? maxValue : inteField[x - 1, y];
                 neighboers[4] = (blocks[4]) ? maxValue : inteField[x + 1, y];
-                neighboers[5] = (blocks[3] && blocks[6]) ? maxValue : inteField[x - 1, y - 1];
+                neighboers[5] = (blocks[5] || (blocks[3] && blocks[6])) ? maxValue : inteField[x - 1, y - 1];
                 neighboers[6] = (blocks[6]) ? maxValue : inteField[x, y - 1];
-                neighboers[7] = (blocks[4] && blocks[6]) ? maxValue : inteField[x + 1, y - 1];
+                neighboers[7] = (blocks[7] || (blocks[4] && blocks[6])) ? maxValue : inteField[x + 1, y - 1];
 
                 int minIdx = 0;
 

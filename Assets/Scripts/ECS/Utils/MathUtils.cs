@@ -5,6 +5,9 @@ public static class MathUtils
 {
     public static float DirectionToAngle (float2 dir)
     {
+        if (dir.x == 0 || dir.y == 0) return 0;
+        if (float.IsNaN (dir.x) || float.IsNaN (dir.y)) return 0;
+
         dir = math.normalize (dir);
 
         float angle = math.acos (dir.x) * Mathf.Rad2Deg;
