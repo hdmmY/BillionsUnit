@@ -3,6 +3,8 @@ using System.Runtime.CompilerServices;
 using Unity.Entities;
 using Unity.Mathematics;
 
+
+// TODO : seperate the Mass. MaxForce, MaxVelocity from this component, and make they be a SharedComponent
 [Serializable]
 public struct NavInfo : IComponentData
 {

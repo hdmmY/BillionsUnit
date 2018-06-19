@@ -53,16 +53,26 @@ public class UnitNavigateSystem : JobComponentSystem
             int2 floorPos = new int2 (math.floor (pos));
             float2 fracPos = math.frac (pos);
 
-            float2 f00, f01, f10, f11;
-            f00 = FlowFieldLookUpTable[(int) FlowField[floorPos.x + floorPos.y * Width]];
-            f10 = FlowFieldLookUpTable[(int) FlowField[floorPos.x + 1 + floorPos.y * Width]];
-            f01 = FlowFieldLookUpTable[(int) FlowField[floorPos.x + (floorPos.y + 1) * Width]];
-            f11 = FlowFieldLookUpTable[(int) FlowField[floorPos.x + 1 + (floorPos.y + 1) * Width]];
+            if (floorPos.x <= 0 || floorPos.x >= (Width - 1) || floorPos.y <= 0 || floorPos.y >= (Height - 1))
+            {
+                oldNavInfo.Velocity = new float2 (0, 0);
+                NavInfos[index] = oldNavInfo;
+                return;
+            }
 
-            float2 top = f00 * (1 - fracPos.x) + f10 * fracPos.x;
-            float2 bottom = f01 * (1 - fracPos.x) + f11 * fracPos.x;
+            float2 centre, top, bottom, left, right;
+            centre = FlowFieldLookUpTable[(int) FlowField[floorPos.x + floorPos.y * Width]];
+            left = math.select (FlowFieldLookUpTable[(int) FlowField[floorPos.x - 1 + floorPos.y * Width]],
+                new float2 (1, 0), floorPos.x <= 1);
+            right = math.select (FlowFieldLookUpTable[(int) FlowField[floorPos.x + 1 + floorPos.y * Width]],
+                new float2 (-1, 0), (floorPos.x + 1) >= Width);
+            bottom = math.select (FlowFieldLookUpTable[(int) FlowField[floorPos.x + (floorPos.y - 1) * Width]],
+                new float2 (0, 1), floorPos.y <= 1);
+            top = math.select (FlowFieldLookUpTable[(int) FlowField[floorPos.x + (floorPos.y + 1) * Width]],
+                new float2 (0, -1), (floorPos.y + 1) >= Height);
 
-            float2 dir = top * (1 - fracPos.y) + bottom * fracPos.y;
+            float2 dir = top * (1 - fracPos.y) + bottom * fracPos.y +
+                right * (1 - fracPos.x) + left * fracPos.x + centre;
             if (float.IsNaN (dir.x) || float.IsNaN (dir.y))
             {
                 dir = new float2 (0, 0);
