@@ -23,7 +23,7 @@ public class TerrainRenderingSystem : ComponentSystem
     protected override void OnCreateManager (int capacity)
     {
         _terrainRenderGroup = GetComponentGroup (
-            typeof (TerrainRenderer), typeof (TransformMatrix), typeof (Terrain),
+            typeof (TerrainRenderer), typeof (TransformMatrix),
             ComponentType.Subtractive (typeof (TerrainCulled)));
     }
 

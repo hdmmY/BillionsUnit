@@ -4,11 +4,17 @@ using Unity.Entities;
 
 public static class EntityPrefabContainer
 {
-    public static Entity Terrain01;
+    public static GameObject Terrain01Renderer;
 
-    public static Entity UI_Terrain01;
+    public static EntityArchetype Terrain01Archetype;
 
-    public static Entity Barrier;
+    public static GameObject UITerrain01Renderer;
+
+    public static EntityArchetype UITerrain01Archetype;
+
+    public static GameObject BarrierRenderer;
+
+    public static EntityArchetype BarrierArchetype;
 
     public static GameObject BarrierColliderPrefab;
 

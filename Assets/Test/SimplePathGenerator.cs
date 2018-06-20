@@ -16,19 +16,19 @@ public class SimplePathGenerator : MonoBehaviour
 
     private void OnEnable ()
     {
-        // _texts = new List<TextMesh> (GameSetting.MAP_HEIGHT * GameSetting.MAP_WIDTH);
+        _texts = new List<TextMesh> (GameSetting.MAP_HEIGHT * GameSetting.MAP_WIDTH);
 
-        // Quaternion rot = CostUIPrefab.transform.rotation;
-        // Vector3 offset = CostUIPrefab.transform.position;
+        Quaternion rot = CostUIPrefab.transform.rotation;
+        Vector3 offset = CostUIPrefab.transform.position;
 
-        // for (int y = 0; y < GameSetting.MAP_HEIGHT; y++)
-        // {
-        //     for (int x = 0; x < GameSetting.MAP_WIDTH; x++)
-        //     {
-        //         _texts.Add (Instantiate (CostUIPrefab, new Vector3 (x, 0, y) + offset, rot, transform)
-        //             .GetComponent<TextMesh> ());
-        //     }
-        // }
+        for (int y = 0; y < GameSetting.MAP_HEIGHT; y++)
+        {
+            for (int x = 0; x < GameSetting.MAP_WIDTH; x++)
+            {
+                _texts.Add (Instantiate (CostUIPrefab, new Vector3 (x, 0, y) + offset, rot, transform)
+                    .GetComponent<TextMesh> ());
+            }
+        }
     }
 
     private void Update ()
@@ -51,24 +51,24 @@ public class SimplePathGenerator : MonoBehaviour
         }
         NavUtils.GenerateFlowField (MapColliderInfo.GameMap, Target);
 
-        // for (int y = 0; y < GameSetting.MAP_HEIGHT; y++)
-        // {
-        //     for (int x = 0; x < GameSetting.MAP_WIDTH; x++)
-        //     {
-        //         int idx = y * GameSetting.MAP_WIDTH + x;
+        for (int y = 0; y < GameSetting.MAP_HEIGHT; y++)
+        {
+            for (int x = 0; x < GameSetting.MAP_WIDTH; x++)
+            {
+                int idx = y * GameSetting.MAP_WIDTH + x;
 
-        //         float value = MapColliderInfo.GameMap.IntegrationField[x, y];
+                float value = MapColliderInfo.GameMap.IntegrationField[x, y];
 
-        //         if (value == float.MaxValue)
-        //         {
-        //             _texts[idx].text = "INF";
-        //         }
-        //         else
-        //         {
-        //             _texts[idx].text = string.Format ("{0:F1}", value);
-        //         }
-        //     }
-        // }
+                if (value == float.MaxValue)
+                {
+                    _texts[idx].text = "INF";
+                }
+                else
+                {
+                    _texts[idx].text = string.Format ("{0:F1}", value);
+                }
+            }
+        }
     }
 
     private void OnDrawGizmos ()

@@ -47,9 +47,20 @@ public class BillionUnitBootstrap : MonoBehaviour
 
     private void InitializeEntityPrefab (EntityManager entityManager)
     {
-        EntityPrefabContainer.Terrain01 = SetUpRenderData (Terrain01Prefab, entityManager, true);
-        EntityPrefabContainer.UI_Terrain01 = SetUpRenderData (UITerrain01Prefab, entityManager, true);
-        EntityPrefabContainer.Barrier = SetUpRenderData (BarrierPrefab, entityManager, true);
+        EntityPrefabContainer.Terrain01Renderer = Terrain01Prefab;
+        EntityPrefabContainer.Terrain01Archetype = entityManager.CreateArchetype (
+            typeof (Position2D), typeof (Heading2D), typeof (TransformMatrix),
+            typeof (StaticTransform), typeof (TerrainRenderer));
+
+        EntityPrefabContainer.UITerrain01Renderer = UITerrain01Prefab;
+        EntityPrefabContainer.UITerrain01Archetype = entityManager.CreateArchetype (
+            typeof (Position2D), typeof (Heading2D), typeof (TransformMatrix),
+            typeof (StaticTransform), typeof (TerrainRenderer));
+
+        EntityPrefabContainer.BarrierRenderer = BarrierPrefab;
+        EntityPrefabContainer.BarrierArchetype = entityManager.CreateArchetype (
+            typeof (Position2D), typeof (Heading2D), typeof (TransformMatrix),
+            typeof (StaticTransform), typeof (BarrierMark), typeof (TerrainRenderer));
         EntityPrefabContainer.BarrierColliderPrefab = BarrierColliderPrefab;
 
         // SetUpAnimData (Enemy01Prefab);
@@ -61,60 +72,44 @@ public class BillionUnitBootstrap : MonoBehaviour
         int mapWidth = GameSetting.MAP_WIDTH;
         int mapHeight = GameSetting.MAP_HEIGHT;
 
+        MapTerrainInfo.GameMap = new MapTerrainInfo (mapWidth, mapHeight);
+
         float gridWidth = GameSetting.GRID_WIDTH;
         float gridHeight = GameSetting.GRID_HEIGHT;
 
         float gridCullRadius = 1.5f * math.sqrt (gridWidth * gridWidth + gridHeight * gridHeight);
 
-        // // Initialize ui terrain
-        // var baseUIDrawOffset = entityManager.GetComponentData<Position2D> (EntityPrefabContainer.UI_Terrain01).Offset;
-        // var baseUITiles = new NativeArray<Entity> (mapWidth * mapHeight, Allocator.Temp);
-        // entityManager.Instantiate (EntityPrefabContainer.UI_Terrain01, baseUITiles);
-        // for (int y = 0; y < mapHeight; y++)
-        // {
-        //     for (int x = 0; x < mapWidth; x++)
-        //     {
-        //         int idx = y * mapWidth + x;
-        //         float2 position = new float2 (x * gridWidth, y * gridHeight);
-        //         float2 drawPosition = position + baseUIDrawOffset;
-        //         float2 heading = entityManager.GetComponentData<Heading2D> (baseUITiles[idx]).Value;
-        //         entityManager.SetComponentData (baseUITiles[idx], new Position2D
-        //         {
-        //             Value = new float2 (x * gridWidth, y * gridHeight),
-        //                 Offset = baseUIDrawOffset
-        //         });
-        //         entityManager.SetComponentData (baseUITiles[idx], new TransformMatrix
-        //         {
-        //             Value = MathUtils.GetTransformMatrix (drawPosition, heading)
-        //         });
-        //     }
-        // }
-        // baseUITiles.Dispose ();
-
         // Initialize base terrain
-        var baseTerrainDrawOffset = entityManager.GetComponentData<Position2D> (EntityPrefabContainer.Terrain01).Offset;
-        var baseTerrs = new NativeArray<Entity> (mapWidth * mapHeight, Allocator.Temp);
-        entityManager.Instantiate (EntityPrefabContainer.Terrain01, baseTerrs);
+        var terrainRenderer = EntityPrefabContainer.Terrain01Renderer;
+        var drawOffset = terrainRenderer.GetComponent<Position2DComponent> ().Value.Offset;
+        var heading = terrainRenderer.GetComponent<Heading2DComponent> ().Value.Value;
+        var terrins = new NativeArray<Entity> (mapWidth * mapHeight, Allocator.Temp);
+        entityManager.CreateEntity (EntityPrefabContainer.Terrain01Archetype, terrins);
         for (int y = 0; y < mapHeight; y++)
         {
             for (int x = 0; x < mapWidth; x++)
             {
                 int idx = y * mapWidth + x;
                 float2 position = new float2 (x * gridWidth, y * gridHeight);
-                float2 drawPosition = position + baseTerrainDrawOffset;
-                float2 heading = entityManager.GetComponentData<Heading2D> (baseTerrs[idx]).Value;
-                entityManager.SetComponentData (baseTerrs[idx], new Position2D
+                float2 drawPosition = position + drawOffset;
+                entityManager.SetComponentData (terrins[idx], new Position2D
                 {
-                    Value = new float2 (x * gridWidth, y * gridHeight),
-                        Offset = baseTerrainDrawOffset
+                    Value = position,
+                        Offset = drawOffset
                 });
-                entityManager.SetComponentData (baseTerrs[idx], new TransformMatrix
+                entityManager.SetComponentData (terrins[idx], new Heading2D
+                {
+                    Value = heading
+                });
+                entityManager.SetComponentData (terrins[idx], new TransformMatrix
                 {
                     Value = MathUtils.GetTransformMatrix (drawPosition, heading)
                 });
+                entityManager.SetSharedComponentData (terrins[idx], terrainRenderer.GetComponent<TerrainRendererComponent> ().Value);
+                MapTerrainInfo.GameMap.Terrains[x, y] |= TerrainType.Normal;
             }
         }
-        baseTerrs.Dispose ();
+        terrins.Dispose ();
     }
 
     private IEnumerator InitializeZoombies (EntityManager entityManager)
@@ -178,43 +173,6 @@ public class BillionUnitBootstrap : MonoBehaviour
                 MapColliderInfo.GameMap.FlowField[x, y] = FlowFieldDir.None;
             }
         }
-    }
-
-
-    #endregion
-
-    #region Helper Methods
-
-    private static Entity SetUpRenderData (GameObject renderer, EntityManager entityManager, bool isstatic = false)
-    {
-        Entity renderEntity;
-
-        if (isstatic)
-        {
-            renderEntity = entityManager.CreateEntity (
-                typeof (Position2D), typeof (Heading2D), typeof (TransformMatrix), typeof (StaticTransform),
-                typeof (TerrainRenderer), typeof (Terrain));
-
-        }
-        else
-        {
-            renderEntity = entityManager.CreateEntity (
-                typeof (Position2D), typeof (Heading2D), typeof (TransformMatrix),
-                typeof (TerrainRenderer), typeof (Terrain));
-
-        }
-
-        entityManager.SetComponentData (renderEntity, renderer.GetComponent<Position2DComponent> ().Value);
-        entityManager.SetComponentData (renderEntity, renderer.GetComponent<Heading2DComponent> ().Value);
-        entityManager.SetComponentData (renderEntity, renderer.GetComponent<TerrainComponent> ().Value);
-        entityManager.SetSharedComponentData (renderEntity, renderer.GetComponent<TerrainRendererComponent> ().Value);
-
-        return renderEntity;
-    }
-
-    private static UnitGameEntityComponent SetUpAnimData (GameObject spritePrefab)
-    {
-        return Instantiate (spritePrefab).GetComponent<UnitGameEntityComponent> ();
     }
 
     #endregion

@@ -14,9 +14,9 @@ public class UnitCommandSystem : ComponentSystem
 
         public EntityArray Entities;
 
-        public ComponentDataArray<Terrain> Terrains;
-
         public ComponentDataArray<Position2D> Positions;
+
+        public ComponentDataArray<BarrierMark> BarrierMarks;
     }
 
     public struct NavUnits
@@ -37,9 +37,6 @@ public class UnitCommandSystem : ComponentSystem
 
     protected override void OnUpdate ()
     {
-        int mapWidth = GameSetting.MAP_WIDTH;
-        int mapHeight = GameSetting.MAP_HEIGHT;
-
         if (_camera == null) _camera = Camera.main;
 
         Ray ray = _camera.ScreenPointToRay (Input.mousePosition);
@@ -49,13 +46,14 @@ public class UnitCommandSystem : ComponentSystem
         int x = (int) pos.x;
         int y = (int) pos.z;
 
-        var map = MapColliderInfo.GameMap;
+        var colliderMap = MapColliderInfo.GameMap;
+        var terrainMap = MapTerrainInfo.GameMap;
         var pathController = GameObject.FindObjectOfType (typeof (SimplePathGenerator)) as SimplePathGenerator;
 
         // Add block
         if (Input.GetMouseButton (0))
         {
-            if (MapColliderUtils.UnReachable (map, x, y))
+            if (MapColliderUtils.UnReachable (colliderMap, x, y))
             {
                 return;
             }
@@ -64,81 +62,83 @@ public class UnitCommandSystem : ComponentSystem
             {
                 for (int x2 = -1 + x; x2 < (1 + x); x2++)
                 {
-                    MapColliderUtils.AddCost (map, x2, y2, 3);
+                    MapColliderUtils.AddCost (colliderMap, x2, y2, 3);
                 }
             }
-            MapColliderUtils.SetCostValue (map, x, y, 255);
+            MapColliderUtils.SetCostValue (colliderMap, x, y, 255);
 
 
             // Instantiate a barrier on (x, y)
-            var barrierEntity = EntityManager.Instantiate (EntityPrefabContainer.Barrier);
-            var drawOffset = EntityManager.GetComponentData<Position2D> (barrierEntity).Offset;
-            EntityManager.SetComponentData (barrierEntity, new Terrain
-            {
-                TerrainType = TerrainType.Barrier
-            });
-            EntityManager.SetComponentData (barrierEntity, new Position2D
+            var barrierRenderer = EntityPrefabContainer.BarrierRenderer;
+            var drawPos = barrierRenderer.GetComponent<Position2DComponent> ().Value.Offset;
+            drawPos += new float2 (x, y);
+            var heading = barrierRenderer.GetComponent<Heading2DComponent> ().Value.Value;
+            PostUpdateCommands.CreateEntity (EntityPrefabContainer.BarrierArchetype);
+            PostUpdateCommands.SetComponent (new Position2D ()
             {
                 Value = new float2 (x, y),
-                    Offset = drawOffset
+                    Offset = drawPos - new float2 (x, y)
             });
-            var drawPosition = drawOffset + new float2 (x, y);
-            var heading = EntityManager.GetComponentData<Heading2D> (barrierEntity).Value;
-            EntityManager.SetComponentData (barrierEntity, new TransformMatrix
+            PostUpdateCommands.SetComponent (new Heading2D ()
             {
-                Value = MathUtils.GetTransformMatrix (drawPosition, heading)
+                Value = heading
             });
-            var barrierColPos = new Vector3 (x,
-                EntityPrefabContainer.BarrierColliderPrefab.transform.position.y, y);
+            PostUpdateCommands.SetSharedComponent (
+                barrierRenderer.GetComponent<TerrainRendererComponent> ().Value
+            );
+            PostUpdateCommands.SetComponent (new TransformMatrix
+            {
+                Value = MathUtils.GetTransformMatrix (drawPos, heading)
+            });
+
+            var barrierColPos = new Vector3 (x, 0, y);
             var barrierCol = Object.Instantiate (EntityPrefabContainer.BarrierColliderPrefab,
-                barrierColPos, quaternion.identity);
-            BarrierContainer.BarrierMap[BarrierContainer.Hash (new float2 (x, y))] = barrierCol;
+                barrierColPos, Quaternion.identity);
+            terrainMap.Terrains[x, y] |= TerrainType.Barrier;
+            MapTerrainUtils.AddCollider (terrainMap, barrierCol);
 
             pathController.Generate ();
+
+            return;
         }
 
         // Remove block
-        if (Input.GetMouseButtonDown (1))
+        if (Input.GetMouseButton (1))
         {
-            if (MapColliderUtils.IsWall (map, x, y))
+            if (terrainMap.Terrains[x, y].HasFlag (TerrainType.Barrier))
             {
-                for (int i = 0; i < _barries.Length; i++)
+                for (int y2 = -1 + y; y2 < (1 + y); y2++)
                 {
-                    if (_barries.Terrains[i].TerrainType == TerrainType.Barrier)
+                    for (int x2 = -1 + x; x2 < (1 + x); x2++)
                     {
-                        int2 position = (int2) _barries.Positions[i].Value;
-
-                        if (position.x == x && position.y == y)
-                        {
-                            MapColliderUtils.SetCostValue (map, x, y, 0);
-                            PostUpdateCommands.DestroyEntity (_barries.Entities[i]);
-
-                            for (int y2 = -1 + y; y2 < (1 + y); y2++)
-                            {
-                                for (int x2 = -1 + x; x2 < (1 + x); x2++)
-                                {
-                                    MapColliderUtils.SubtracCost (map, x2, y2, 3);
-                                }
-                            }
-                            MapColliderUtils.SetCostValue (map, x, y, 0);
-
-                            int hash = BarrierContainer.Hash (new float2 (x, y));
-                            Object.DestroyImmediate (BarrierContainer.BarrierMap[hash]);
-                            BarrierContainer.BarrierMap[hash] = null;
-                            BarrierContainer.BarrierMap.Remove (hash);
-                        }
+                        MapColliderUtils.SubtracCost (colliderMap, x2, y2, 3);
                     }
                 }
-                pathController.Generate ();
+                MapColliderUtils.SetCostValue (colliderMap, x, y, 0);
+
+                for (int i = 0; i < _barries.Length; i++)
+                {
+                    int2 floorPos = new int2 (_barries.Positions[i].Value);
+
+                    if (floorPos.x == x && floorPos.y == y)
+                    {
+                        PostUpdateCommands.DestroyEntity (_barries.Entities[i]);
+                    }
+                }
+                MapTerrainUtils.RemoveColliders (terrainMap, new float2 (pos.x, pos.z), true);
             }
+
+            pathController.Generate ();
+
+            return;
         }
 
         if (Input.GetMouseButtonDown (2))
         {
             pathController.Target = new int2 (x, y);
             pathController.Generate ();
+            return;
         }
-
 
         // Make unit nav
         if (Input.GetKeyDown (KeyCode.N))

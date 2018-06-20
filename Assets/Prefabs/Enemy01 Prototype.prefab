@@ -140,9 +140,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_SerializedData:
-    NeighborDist: 1
+    NeighborDist: 2
     MaxNeighbors: 10
-    TimeHorizon: 2
+    TimeHorizon: 1.5
     Radius: 0.2
     MaxSpeed: 1.5
 --- !u!114 &114667295699768998
@@ -184,6 +184,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_SerializedData:
     Velocity:
+      x: 0
+      y: 0
+    Force:
       x: 0
       y: 0
     Target:
