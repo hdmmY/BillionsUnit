@@ -25,7 +25,6 @@ GameObject:
   - component: {fileID: 114147454075776544}
   - component: {fileID: 114920648329268260}
   - component: {fileID: 114614205709913086}
-  - component: {fileID: 114839728492774622}
   - component: {fileID: 114620728918133744}
   m_Layer: 0
   m_Name: Terrain01 Prototype
@@ -152,19 +151,6 @@ MonoBehaviour:
       z: 0.5
     BoundingSphereRadius: 1
     CullStatus: 0
---- !u!114 &114839728492774622
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1656093425806030}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68241747b92b02a4d9ea6e1b040d08c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SerializedData:
-    TerrainType: 0
 --- !u!114 &114920648329268260
 MonoBehaviour:
   m_ObjectHideFlags: 1

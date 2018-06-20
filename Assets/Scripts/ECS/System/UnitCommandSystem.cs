@@ -14,9 +14,11 @@ public class UnitCommandSystem : ComponentSystem
 
         public EntityArray Entities;
 
+        [ReadOnly]
         public ComponentDataArray<Position2D> Positions;
 
-        public ComponentDataArray<BarrierMark> BarrierMarks;
+        [ReadOnly]
+        public ComponentDataArray<Barrier> BarrierMarks;
     }
 
     public struct NavUnits
@@ -32,8 +34,9 @@ public class UnitCommandSystem : ComponentSystem
 
     [Inject] NavUnits _navUnits;
 
-
     private Camera _camera;
+
+    private bool _InitBoundary = false;
 
     protected override void OnUpdate ()
     {
@@ -50,55 +53,28 @@ public class UnitCommandSystem : ComponentSystem
         var terrainMap = MapTerrainInfo.GameMap;
         var pathController = GameObject.FindObjectOfType (typeof (SimplePathGenerator)) as SimplePathGenerator;
 
+        if (!_InitBoundary)
+        {
+            colliderMap = MapColliderInfo.GameMap;
+            terrainMap = MapTerrainInfo.GameMap;
+
+            for (int i = 0; i < GameSetting.MAP_WIDTH; i++)
+                CreateBarrier (colliderMap, terrainMap, i, 0);
+            for (int i = 0; i < GameSetting.MAP_WIDTH; i++)
+                CreateBarrier (colliderMap, terrainMap, i, GameSetting.MAP_HEIGHT - 1);
+            for (int i = 0; i < GameSetting.MAP_HEIGHT; i++)
+                CreateBarrier (colliderMap, terrainMap, 0, i);
+            for (int i = 0; i < GameSetting.MAP_HEIGHT; i++)
+                CreateBarrier (colliderMap, terrainMap, GameSetting.MAP_WIDTH - 1, i);
+
+            _InitBoundary = true;
+        }
+
         // Add block
         if (Input.GetMouseButton (0))
         {
-            if (MapColliderUtils.UnReachable (colliderMap, x, y))
-            {
-                return;
-            }
-
-            for (int y2 = -1 + y; y2 < (1 + y); y2++)
-            {
-                for (int x2 = -1 + x; x2 < (1 + x); x2++)
-                {
-                    MapColliderUtils.AddCost (colliderMap, x2, y2, 3);
-                }
-            }
-            MapColliderUtils.SetCostValue (colliderMap, x, y, 255);
-
-
-            // Instantiate a barrier on (x, y)
-            var barrierRenderer = EntityPrefabContainer.BarrierRenderer;
-            var drawPos = barrierRenderer.GetComponent<Position2DComponent> ().Value.Offset;
-            drawPos += new float2 (x, y);
-            var heading = barrierRenderer.GetComponent<Heading2DComponent> ().Value.Value;
-            PostUpdateCommands.CreateEntity (EntityPrefabContainer.BarrierArchetype);
-            PostUpdateCommands.SetComponent (new Position2D ()
-            {
-                Value = new float2 (x, y),
-                    Offset = drawPos - new float2 (x, y)
-            });
-            PostUpdateCommands.SetComponent (new Heading2D ()
-            {
-                Value = heading
-            });
-            PostUpdateCommands.SetSharedComponent (
-                barrierRenderer.GetComponent<TerrainRendererComponent> ().Value
-            );
-            PostUpdateCommands.SetComponent (new TransformMatrix
-            {
-                Value = MathUtils.GetTransformMatrix (drawPos, heading)
-            });
-
-            var barrierColPos = new Vector3 (x, 0, y);
-            var barrierCol = Object.Instantiate (EntityPrefabContainer.BarrierColliderPrefab,
-                barrierColPos, Quaternion.identity);
-            terrainMap.Terrains[x, y] |= TerrainType.Barrier;
-            MapTerrainUtils.AddCollider (terrainMap, barrierCol);
-
+            CreateBarrier (colliderMap, terrainMap, x, y);
             pathController.Generate ();
-
             return;
         }
 
@@ -152,5 +128,56 @@ public class UnitCommandSystem : ComponentSystem
                 EntityManager.SetComponentData (_navUnits.Entities[i], oldMov);
             }
         }
+    }
+
+
+    private void CreateBarrier (MapColliderInfo colliderMap, MapTerrainInfo terrainMap, int x, int y)
+    {
+        if (MapColliderUtils.UnReachable (colliderMap, x, y))
+        {
+            return;
+        }
+
+        for (int y2 = -1 + y; y2 < (1 + y); y2++)
+        {
+            for (int x2 = -1 + x; x2 < (1 + x); x2++)
+            {
+                MapColliderUtils.AddCost (colliderMap, x2, y2, 3);
+            }
+        }
+        MapColliderUtils.SetCostValue (colliderMap, x, y, 255);
+
+
+        // Instantiate a barrier on (x, y)
+        var barrierRenderer = EntityPrefabContainer.BarrierRenderer;
+        var drawPos = barrierRenderer.GetComponent<Position2DComponent> ().Value.Offset;
+        drawPos += new float2 (x, y);
+        var heading = barrierRenderer.GetComponent<Heading2DComponent> ().Value.Value;
+        PostUpdateCommands.CreateEntity (EntityPrefabContainer.BarrierArchetype);
+        PostUpdateCommands.SetComponent (new Position2D ()
+        {
+            Value = new float2 (x, y),
+                Offset = drawPos - new float2 (x, y)
+        });
+        PostUpdateCommands.SetComponent (new Heading2D ()
+        {
+            Value = heading
+        });
+        PostUpdateCommands.SetComponent (new TransformMatrix
+        {
+            Value = MathUtils.GetTransformMatrix (drawPos, heading)
+        });
+        PostUpdateCommands.SetComponent (
+            barrierRenderer.GetComponent<BarrierComponent> ().Value
+        );
+        PostUpdateCommands.SetSharedComponent (
+            barrierRenderer.GetComponent<TerrainRendererComponent> ().Value
+        );
+
+        var barrierColPos = new Vector3 (x, 0, y);
+        var barrierCol = Object.Instantiate (EntityPrefabContainer.BarrierColliderPrefab,
+            barrierColPos, Quaternion.identity);
+        terrainMap.Terrains[x, y] |= TerrainType.Barrier;
+        MapTerrainUtils.AddCollider (terrainMap, barrierCol);
     }
 }

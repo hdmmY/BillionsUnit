@@ -25,7 +25,6 @@ GameObject:
   - component: {fileID: 114060619457536048}
   - component: {fileID: 114012501247073852}
   - component: {fileID: 114035210566338084}
-  - component: {fileID: 114203662816386254}
   - component: {fileID: 114231336196118470}
   m_Layer: 0
   m_Name: UI Terrain01 Prototype
@@ -141,19 +140,6 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 1
     Camera: {fileID: 0}
---- !u!114 &114203662816386254
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1650672933314598}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68241747b92b02a4d9ea6e1b040d08c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SerializedData:
-    TerrainType: 0
 --- !u!114 &114231336196118470
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -140,11 +140,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_SerializedData:
-    NeighborDist: 2
-    MaxNeighbors: 10
-    TimeHorizon: 1.5
+    NeighborDist: 0.8
+    MaxNeighbors: 5
+    TimeHorizon: 0.5
     Radius: 0.2
-    MaxSpeed: 1.5
+    MaxSpeed: 2
+    MaxForce: 15
+    FlowFieldSteeringForce: 1.5
+    ObstacleAvoidanceForce: 5
+    ObstacleAwareness: 1.5
 --- !u!114 &114667295699768998
 MonoBehaviour:
   m_ObjectHideFlags: 1

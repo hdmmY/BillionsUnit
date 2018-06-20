@@ -18,9 +18,12 @@ public class SimpleCameraController : MonoBehaviour
 
     private void Update ()
     {
-        transform.position += new Vector3 (
-            Input.GetAxis ("Horizontal"), 0,
-            Input.GetAxis ("Vertical")) * Time.deltaTime * MoveSpeed;
+        Vector2 moveInput = new Vector2 (Input.GetAxis ("Horizontal"), Input.GetAxis ("Vertical")) *
+            Time.deltaTime * MoveSpeed;
+
+        _camera.transform.position += new Vector3 (
+            (moveInput.x - moveInput.y) / 2, 0, (moveInput.y + moveInput.x) / 2
+        );
 
         _camera.orthographicSize = Mathf.Clamp (_camera.orthographicSize +
             -1 * Input.GetAxis ("Mouse ScrollWheel") * ScaleSpeed, 0.1f, 40f);

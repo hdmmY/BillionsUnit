@@ -60,7 +60,7 @@ public class BillionUnitBootstrap : MonoBehaviour
         EntityPrefabContainer.BarrierRenderer = BarrierPrefab;
         EntityPrefabContainer.BarrierArchetype = entityManager.CreateArchetype (
             typeof (Position2D), typeof (Heading2D), typeof (TransformMatrix),
-            typeof (StaticTransform), typeof (BarrierMark), typeof (TerrainRenderer));
+            typeof (StaticTransform), typeof (Barrier), typeof (TerrainRenderer));
         EntityPrefabContainer.BarrierColliderPrefab = BarrierColliderPrefab;
 
         // SetUpAnimData (Enemy01Prefab);
@@ -114,8 +114,8 @@ public class BillionUnitBootstrap : MonoBehaviour
 
     private IEnumerator InitializeZoombies (EntityManager entityManager)
     {
-        int xSpawn = 10;
-        int ySpawn = 10;
+        int xSpawn = 30;
+        int ySpawn = 30;
 
         float gridWidth = GameSetting.GRID_WIDTH;
         float gridHeight = GameSetting.GRID_HEIGHT;
@@ -154,7 +154,7 @@ public class BillionUnitBootstrap : MonoBehaviour
             yield return null;
         }
 
-        RVO.Simulator.Instance.SetNumWorkers (6);
+        RVO.Simulator.Instance.SetNumWorkers (4);
 
         baseEnemies.Dispose ();
     }

@@ -3,10 +3,10 @@
 public static class GameSetting
 {
     // Game tile width
-    public static readonly int MAP_WIDTH = 50;
+    public static readonly int MAP_WIDTH = 100;
 
     // Game tile height
-    public static readonly int MAP_HEIGHT = 50;
+    public static readonly int MAP_HEIGHT = 100;
 
     public static readonly int HALF_MAP_WIDTH = MAP_WIDTH / 2;
 

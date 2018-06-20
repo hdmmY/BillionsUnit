@@ -22,6 +22,10 @@ public class UnitCollisionSystem : ComponentSystem
 
     protected override void OnUpdate ()
     {
+        if (!Simulate ()) return;
+
+        float deltTime = Time.deltaTime;
+
         for (int i = 0; i < _units.Length; i++)
         {
             var move = _units.MovementDatas[i];
@@ -31,13 +35,15 @@ public class UnitCollisionSystem : ComponentSystem
 
             if (_units.MovementDatas[i].IsMoving)
             {
-                Simulator.Instance.setAgentPrefVelocity (move.RVOAgentID, move.Velocity);
+                Simulator.Instance.setAgentPrefVelocity (move.RVOAgentID,
+                    move.Velocity + move.Force * deltTime);
             }
             else
             {
                 Simulator.Instance.setAgentPrefVelocity (move.RVOAgentID, new float2 (0f, 0f));
             }
         }
+
 
         Simulator.Instance.setTimeStep (Time.deltaTime);
         Simulator.Instance.doStep ();
@@ -47,6 +53,21 @@ public class UnitCollisionSystem : ComponentSystem
             UnitMovement move = _units.MovementDatas[i];
             move.Velocity = Simulator.Instance.getAgentVelocity (move.RVOAgentID);
             _units.MovementDatas[i] = move;
+        }
+    }
+
+    private bool Simulate ()
+    {
+        if (FPSCounter.Instance.AverageFPS >= RVOSimulateTimer.FPSThrethold ||
+            RVOSimulateTimer.FrameSinceLastSimulate >= RVOSimulateTimer.FrameThrethold)
+        {
+            RVOSimulateTimer.FrameSinceLastSimulate = 0;
+            return true;
+        }
+        else
+        {
+            RVOSimulateTimer.FrameSinceLastSimulate++;
+            return false;
         }
     }
 }

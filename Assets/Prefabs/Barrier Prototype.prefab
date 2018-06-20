@@ -25,8 +25,8 @@ GameObject:
   - component: {fileID: 114778942434051046}
   - component: {fileID: 114406299208718574}
   - component: {fileID: 114347380005322714}
-  - component: {fileID: 114449401966930962}
   - component: {fileID: 114852708750061920}
+  - component: {fileID: 114570964875085420}
   m_Layer: 0
   m_Name: Barrier Prototype
   m_TagString: Untagged
@@ -122,7 +122,7 @@ MonoBehaviour:
     Offset:
       x: 0.5
       y: -0.2
---- !u!114 &114449401966930962
+--- !u!114 &114570964875085420
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -130,11 +130,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 1339339518208766}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68241747b92b02a4d9ea6e1b040d08c1, type: 3}
+  m_Script: {fileID: 11500000, guid: 9af573e4f3fbaa344a1eba3a2cf91ed2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_SerializedData:
-    TerrainType: 1
+    Offset:
+      x: 0.5
+      y: 0.5
+    Radius: 0.8
 --- !u!114 &114778942434051046
 MonoBehaviour:
   m_ObjectHideFlags: 1
