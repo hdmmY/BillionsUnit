@@ -3,59 +3,32 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.Experimental.PlayerLoop;
 
+[UpdateAfter (typeof (FixedUpdate))]
 [UpdateAfter (typeof (UnitCollisionSystem))]
-public class UnitMovementSystem : JobComponentSystem
+public class UnitMovementSystem : ComponentSystem
 {
-    public struct UnitMovement
+    public struct Movement
     {
-        public ComponentDataArray<Position2D> Positions;
-
         public ComponentDataArray<UnitRotation> Rotations;
 
-        [ReadOnly] public ComponentDataArray<NavInfo> NavInfos;
+        [ReadOnly] public ComponentDataArray<UnitMovement> MoveData;
+
+        public ComponentArray<Rigidbody> Rigs;
 
         public int Length;
     }
 
-    [Inject] private UnitMovement _unitMovementData;
+    [Inject] private Movement _unitMovementData;
 
-    public struct SyncUnitMovement : IJobParallelFor
+    protected override void OnUpdate ()
     {
-        public ComponentDataArray<Position2D> Positions;
-
-        public ComponentDataArray<UnitRotation> Rotations;
-
-        [ReadOnly] public ComponentDataArray<NavInfo> Infos;
-
-        public float DeltTime;
-
-        public void Execute (int index)
+        for (int i = 0; i < _unitMovementData.Length; i++)
         {
-            var oldPos = Positions[index];
-            var navInfo = Infos[index];
-
-            if (!navInfo.NavMoving) return;
-
-            oldPos.Value += navInfo.Velocity * DeltTime;
-            Positions[index] = oldPos;
-
-            if (math.lengthSquared (navInfo.Velocity) > 1e-5)
-            {
-                Rotations[index] = new UnitRotation { Angle = MathUtils.DirectionToAngle (navInfo.Velocity) };
-            }
+            float2 velocity = _unitMovementData.MoveData[i].Velocity;
+            _unitMovementData.Rotations[i] = new UnitRotation { Angle = MathUtils.DirectionToAngle (velocity) };
+            _unitMovementData.Rigs[i].velocity = new Vector3 (velocity.x, 0, velocity.y);
         }
-    }
-
-
-    protected override JobHandle OnUpdate (JobHandle inputDeps)
-    {
-        return new SyncUnitMovement
-        {
-            Positions = _unitMovementData.Positions,
-                Rotations = _unitMovementData.Rotations,
-                Infos = _unitMovementData.NavInfos,
-                DeltTime = Time.deltaTime
-        }.Schedule (_unitMovementData.Length, 128, inputDeps);
     }
 }

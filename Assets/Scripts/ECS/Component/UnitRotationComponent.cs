@@ -22,7 +22,7 @@ public struct UnitRotation : IComponentData
         }
     }
 
-    [SerializeField] private float _angle;
+    private float _angle;
 }
 
 public class UnitRotationComponent : ComponentDataWrapper<UnitRotation> { }

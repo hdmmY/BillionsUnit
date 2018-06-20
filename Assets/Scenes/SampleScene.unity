@@ -146,6 +146,8 @@ MonoBehaviour:
     type: 2}
   BarrierPrefab: {fileID: 1339339518208766, guid: 277fd92291e03e84088e7cd27f584d27,
     type: 2}
+  BarrierColliderPrefab: {fileID: 1817710552637556, guid: 80412ae37fd324849a34c9e19803bb4b,
+    type: 2}
   Enemy01Prefab: {fileID: 1785311155150030, guid: 48363ffcfb5decb469b3feea77d6f9d9,
     type: 2}
 --- !u!4 &481443032
@@ -793,7 +795,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CostUIPrefab: {fileID: 1603203265122874, guid: b816a6555a4fb504fa896f7e279b9d08,
     type: 2}
-  UseCanonicalDij: 1
+  UseCanonicalDij: 0
   Target:
     x: 40
     y: 40

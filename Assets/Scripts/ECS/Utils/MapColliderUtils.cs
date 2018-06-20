@@ -14,6 +14,24 @@ public static class MapColliderUtils
     }
 
     [MethodImpl (MethodImplOptions.AggressiveInlining)]
+    public static void AddCost (MapColliderInfo map, int x, int y, byte value)
+    {
+        if (x >= map.MapWidth || x < 0) return;
+        if (y >= map.MapHeight || y < 0) return;
+
+        map.CostField[x, y] = (byte) math.clamp (map.CostField[x, y] + value, 0, 0xff);
+    }
+
+    [MethodImpl (MethodImplOptions.AggressiveInlining)]
+    public static void SubtracCost (MapColliderInfo map, int x, int y, byte value)
+    {
+        if (x >= map.MapWidth || x < 0) return;
+        if (y >= map.MapHeight || y < 0) return;
+
+        map.CostField[x, y] = (byte) math.clamp (map.CostField[x, y] - value, 0, 0xff);
+    }
+
+    [MethodImpl (MethodImplOptions.AggressiveInlining)]
     public static bool UnReachable (MapColliderInfo map, int x, int y)
     {
         if (x >= map.MapWidth || x < 0) return true;

@@ -17,6 +17,8 @@ public class BillionUnitBootstrap : MonoBehaviour
 
     public GameObject BarrierPrefab;
 
+    public GameObject BarrierColliderPrefab;
+
     public GameObject Enemy01Prefab;
 
     #endregion
@@ -48,6 +50,7 @@ public class BillionUnitBootstrap : MonoBehaviour
         EntityPrefabContainer.Terrain01 = SetUpRenderData (Terrain01Prefab, entityManager, true);
         EntityPrefabContainer.UI_Terrain01 = SetUpRenderData (UITerrain01Prefab, entityManager, true);
         EntityPrefabContainer.Barrier = SetUpRenderData (BarrierPrefab, entityManager, true);
+        EntityPrefabContainer.BarrierColliderPrefab = BarrierColliderPrefab;
 
         // SetUpAnimData (Enemy01Prefab);
         EntityPrefabContainer.Enemy01 = Enemy01Prefab;
@@ -112,17 +115,19 @@ public class BillionUnitBootstrap : MonoBehaviour
             }
         }
         baseTerrs.Dispose ();
-
-
     }
 
     private IEnumerator InitializeZoombies (EntityManager entityManager)
     {
-        int xSpawn = 30;
-        int ySpawn = 30;
+        int xSpawn = 10;
+        int ySpawn = 10;
 
         float gridWidth = GameSetting.GRID_WIDTH;
         float gridHeight = GameSetting.GRID_HEIGHT;
+
+        var physetting = EntityPrefabContainer.Enemy01.GetComponent<UnitPhysicSettingComponent> ().Value;
+        RVO.Simulator.Instance.setAgentDefaults (physetting.NeighborDist, physetting.MaxNeighbors,
+            physetting.TimeHorizon, 0.1f, physetting.Radius, physetting.MaxSpeed, new float2 (0, 0));
 
         var baseEnemyDrawOffset = EntityPrefabContainer.Enemy01.GetComponent<Position2DComponent> ().Value.Offset;
         var baseEnemies = new NativeArray<Entity> (xSpawn * ySpawn, Allocator.Persistent);
@@ -131,20 +136,31 @@ public class BillionUnitBootstrap : MonoBehaviour
             for (int x = 0; x < xSpawn; x++)
             {
                 int idx = y * xSpawn + x;
-                baseEnemies[idx] = Object.Instantiate (EntityPrefabContainer.Enemy01)
-                    .GetComponent<UnitGameEntityComponent> ().Entity;
+                var pos = new float2 (2 + x * gridWidth, 2 + y * gridHeight);
+
+                var enemyGo = Object.Instantiate (EntityPrefabContainer.Enemy01);
+                enemyGo.transform.position = new Vector3 (pos.x + baseEnemyDrawOffset.x,
+                    0, pos.y + baseEnemyDrawOffset.y);
+                baseEnemies[idx] = enemyGo.GetComponent<UnitGameEntityComponent> ().Entity;
                 entityManager.SetComponentData (baseEnemies[idx], new Position2D
                 {
-                    Value = new float2 (2 + 0.5f * x * gridWidth, 2 + 0.5f * y * gridHeight),
+                    Value = pos,
                         Offset = baseEnemyDrawOffset
                 });
                 entityManager.SetComponentData (baseEnemies[idx], new UnitRotation
                 {
                     Angle = 0
                 });
-                yield return null;
+                entityManager.SetComponentData (baseEnemies[idx], new UnitMovement
+                {
+                    RVOAgentID = RVO.Simulator.Instance.addAgent (pos)
+                });
             }
+            yield return null;
         }
+
+        RVO.Simulator.Instance.SetNumWorkers (6);
+
         baseEnemies.Dispose ();
     }
 

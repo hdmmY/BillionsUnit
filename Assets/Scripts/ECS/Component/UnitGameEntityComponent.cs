@@ -4,7 +4,6 @@ using UnityEditor;
 using Unity.Entities;
 using Unity.Transforms2D;
 
-[ExecuteInEditMode]
 public class UnitGameEntityComponent : GameObjectEntity
 {
     private static MethodInfo SetComponentMethod = null;
@@ -42,11 +41,11 @@ public class UnitGameEntityComponent : GameObjectEntity
         if (UnitGameEntityArch == null)
         {
             UnitGameEntityArch = entityManager.CreateArchetype (
-                typeof (Transform), typeof (SpriteRenderer),
+                typeof (Transform), typeof (SpriteRenderer), typeof (Rigidbody), typeof (SphereCollider),
                 typeof (SimpleSpriteAnimCollectionComponent), typeof (UnitGameEntityComponent),
                 typeof (Position2D), typeof (Heading2D), typeof (UnitRotation),
                 typeof (SimpleAnimInfomation), typeof (SelfSimpleSpriteAnimData),
-                typeof (NavInfo));
+                typeof (UnitMovement), typeof (UnitPhysicSetting));
         }
 
         var entity = entityManager.CreateEntity (UnitGameEntityArch.Value);
@@ -85,29 +84,41 @@ public class UnitGameEntityComponent : GameObjectEntity
             gameObject.GetComponent<SimpleSpriteAnimCollectionComponent> ()
         });
 
+        SetComponentMethod.Invoke (entityManager, new object[]
+        {
+            entity,
+            ComponentType.Create<Rigidbody> (),
+            gameObject.GetComponent<Rigidbody> ()
+        });
+
+        SetComponentMethod.Invoke (entityManager, new object[]
+        {
+            entity,
+            ComponentType.Create<SphereCollider> (),
+            gameObject.GetComponent<SphereCollider> ()
+        });
+
         entityManager.SetComponentData (entity, gameObject.GetComponent<Position2DComponent> ().Value);
-        Destroy (gameObject.GetComponent<Position2DComponent> ());
+        // Destroy (gameObject.GetComponent<Position2DComponent> ());
 
         entityManager.SetComponentData (entity, gameObject.GetComponent<Heading2DComponent> ().Value);
-        Destroy (gameObject.GetComponent<Heading2DComponent> ());
+        // Destroy (gameObject.GetComponent<Heading2DComponent> ());
 
         entityManager.SetComponentData (entity, gameObject.GetComponent<UnitRotationComponent> ().Value);
-        Destroy (gameObject.GetComponent<UnitRotationComponent> ());
+        // Destroy (gameObject.GetComponent<UnitRotationComponent> ());
 
         entityManager.SetComponentData (entity, gameObject.GetComponent<SelfSimpleSpriteAnimDataComponent> ().Value);
-        Destroy (gameObject.GetComponent<SelfSimpleSpriteAnimDataComponent> ());
-
-        entityManager.SetComponentData (entity, gameObject.GetComponent<NavInfoComponent> ().Value);
-        Destroy (gameObject.GetComponent<NavInfoComponent> ());
+        // Destroy (gameObject.GetComponent<SelfSimpleSpriteAnimDataComponent> ());
 
         entityManager.SetSharedComponentData (entity, gameObject.GetComponent<SimpleAnimInfomationComponent> ().Value);
-        Destroy (gameObject.GetComponent<SimpleAnimInfomationComponent> ());
+        // Destroy (gameObject.GetComponent<SimpleAnimInfomationComponent> ());
+
+        entityManager.SetComponentData (entity, gameObject.GetComponent<UnitMovementComponent> ().Value);
+        // Destroy (gameObject.GetComponent<UnitMovementComponent> ());
+
+        entityManager.SetSharedComponentData (entity, gameObject.GetComponent<UnitPhysicSettingComponent> ().Value);
+        // Destroy (gameObject.GetComponent<UnitPhysicSettingComponent> ());
 
         return entity;
-    }
-
-    static void SetPropertyValue (Object target, string propName, object value)
-    {
-
     }
 }

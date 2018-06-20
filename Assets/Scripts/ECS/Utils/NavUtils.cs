@@ -73,7 +73,6 @@ public static class NavUtils
 
         int mapWidth = map.MapWidth;
         int mapHeight = map.MapHeight;
-        byte[, ] costField = map.CostField;
         float[, ] inteField = map.IntegrationField;
         IntegrateFlag[, ] inteInfos = map.IntegrateInfos;
 
@@ -109,7 +108,7 @@ public static class NavUtils
         }
     }
 
-    public static void GenerateFlowField (MapColliderInfo map)
+    public static void GenerateFlowField (MapColliderInfo map, int2 target)
     {
         float[] neighboers = new float[8];
         bool[] blocks = new bool[8];
@@ -184,6 +183,8 @@ public static class NavUtils
                 }
             }
         }
+
+        flowField[target.x, target.y] = FlowFieldDir.None;
     }
 
     #endregion

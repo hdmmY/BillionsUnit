@@ -25,7 +25,7 @@ public class UnitCommandSystem : ComponentSystem
 
         public EntityArray Entities;
 
-        public ComponentDataArray<NavInfo> NavInfos;
+        public ComponentDataArray<UnitMovement> MoveData;
     }
 
     [Inject] BarrierData _barries;
@@ -49,18 +49,26 @@ public class UnitCommandSystem : ComponentSystem
         int x = (int) pos.x;
         int y = (int) pos.z;
 
-
+        var map = MapColliderInfo.GameMap;
         var pathController = GameObject.FindObjectOfType (typeof (SimplePathGenerator)) as SimplePathGenerator;
 
         // Add block
         if (Input.GetMouseButton (0))
         {
-            if (MapColliderUtils.UnReachable (MapColliderInfo.GameMap, x, y))
+            if (MapColliderUtils.UnReachable (map, x, y))
             {
                 return;
             }
 
-            MapColliderUtils.SetCostValue (MapColliderInfo.GameMap, x, y, 255);
+            for (int y2 = -1 + y; y2 < (1 + y); y2++)
+            {
+                for (int x2 = -1 + x; x2 < (1 + x); x2++)
+                {
+                    MapColliderUtils.AddCost (map, x2, y2, 3);
+                }
+            }
+            MapColliderUtils.SetCostValue (map, x, y, 255);
+
 
             // Instantiate a barrier on (x, y)
             var barrierEntity = EntityManager.Instantiate (EntityPrefabContainer.Barrier);
@@ -80,14 +88,19 @@ public class UnitCommandSystem : ComponentSystem
             {
                 Value = MathUtils.GetTransformMatrix (drawPosition, heading)
             });
+            var barrierColPos = new Vector3 (x,
+                EntityPrefabContainer.BarrierColliderPrefab.transform.position.y, y);
+            var barrierCol = Object.Instantiate (EntityPrefabContainer.BarrierColliderPrefab,
+                barrierColPos, quaternion.identity);
+            BarrierContainer.BarrierMap[BarrierContainer.Hash (new float2 (x, y))] = barrierCol;
 
             pathController.Generate ();
         }
 
         // Remove block
-        if (Input.GetMouseButton (1))
+        if (Input.GetMouseButtonDown (1))
         {
-            if (MapColliderUtils.IsWall (MapColliderInfo.GameMap, x, y))
+            if (MapColliderUtils.IsWall (map, x, y))
             {
                 for (int i = 0; i < _barries.Length; i++)
                 {
@@ -97,8 +110,22 @@ public class UnitCommandSystem : ComponentSystem
 
                         if (position.x == x && position.y == y)
                         {
+                            MapColliderUtils.SetCostValue (map, x, y, 0);
                             PostUpdateCommands.DestroyEntity (_barries.Entities[i]);
-                            MapColliderUtils.SetCostValue (MapColliderInfo.GameMap, x, y, 0);
+
+                            for (int y2 = -1 + y; y2 < (1 + y); y2++)
+                            {
+                                for (int x2 = -1 + x; x2 < (1 + x); x2++)
+                                {
+                                    MapColliderUtils.SubtracCost (map, x2, y2, 3);
+                                }
+                            }
+                            MapColliderUtils.SetCostValue (map, x, y, 0);
+
+                            int hash = BarrierContainer.Hash (new float2 (x, y));
+                            Object.DestroyImmediate (BarrierContainer.BarrierMap[hash]);
+                            BarrierContainer.BarrierMap[hash] = null;
+                            BarrierContainer.BarrierMap.Remove (hash);
                         }
                     }
                 }
@@ -118,11 +145,11 @@ public class UnitCommandSystem : ComponentSystem
         {
             for (int i = 0; i < _navUnits.Length; i++)
             {
-                var oldNav = _navUnits.NavInfos[i];
-                if (oldNav.NavMoving) oldNav.StopNavMoving ();
-                else oldNav.StartNavMoving ();
-                oldNav.Target = pathController.Target;
-                EntityManager.SetComponentData (_navUnits.Entities[i], oldNav);
+                var oldMov = _navUnits.MoveData[i];
+                if (oldMov.IsMoving) oldMov.StopMoving ();
+                else oldMov.StartMoving ();
+                oldMov.Target = pathController.Target;
+                EntityManager.SetComponentData (_navUnits.Entities[i], oldMov);
             }
         }
     }

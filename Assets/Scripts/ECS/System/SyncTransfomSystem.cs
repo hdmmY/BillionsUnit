@@ -4,15 +4,16 @@ using Unity.Mathematics;
 using Unity.Transforms2D;
 using UnityEngine;
 
+[UpdateAfter (typeof (UnitMovementSystem))]
 public class SyncTransformSystem : ComponentSystem
 {
     public struct InitialTransformData
     {
-        [ReadOnly] public ComponentDataArray<Position2D> Positions;
+        public ComponentDataArray<Position2D> Positions;
 
-        // [ReadOnly] public ComponentDataArray<Heading2D> Headings;
+        public ComponentDataArray<UnitRotation> Rotations;
 
-        public ComponentArray<Transform> Outputs;
+        public ComponentArray<Transform> Transforms;
 
         public int Length;
     }
@@ -23,10 +24,10 @@ public class SyncTransformSystem : ComponentSystem
     {
         for (int i = 0; i < _initTransDatas.Length; i++)
         {
-            float2 position = _initTransDatas.Positions[i].DrawValue;
-            // float2 heading = _initTransDatas.Headings[i].Value;
-
-            _initTransDatas.Outputs[i].position = new float3 (position.x, 0, position.y);
+            Position2D pos2D = _initTransDatas.Positions[i];
+            pos2D.Value = new float2 (_initTransDatas.Transforms[i].position.x,
+                _initTransDatas.Transforms[i].position.z) - pos2D.Offset;
+            _initTransDatas.Positions[i] = pos2D;
         }
     }
 }
